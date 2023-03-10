@@ -1,0 +1,238 @@
+---
+title: "Loglinear LCA"
+editor: visual
+author: "DL Oberski"
+format:
+  html:
+    code-fold: true
+    code-summary: "Show the code"
+    code-tools: true
+    theme: zephyr
+    toc: true
+execute:
+  cache: true
+---
+
+# Loglinear formulation of LCA
+
+
+The loglinear formulation of LCA is very powerful. It only works for categorical data, but, in addition to the "plain vanilla" kind of locally independent LCA, it allows for:
+
+ - Built-in handling of missing data (everything is a missing data problem);
+ - NMAR ("unseen data-dependent") models;
+ - Multiple latent class variables, unlocking arbitrary modelling with latent variables, i.e. "categorical SEM";
+ - "Linear by linear" and "linear by nominal" effects, making for more parsimonious models, unlocking:
+ - Discretized, "nonparametric" versions of IRT models ("DFactor models" in Latent Gold)
+ - Covariates/concomitant variables, including "measurement invariance" models;
+ - Facilities for complex sampling designs, i.e. weighting, clustering, and stratification;
+ - and more.
+
+The largest drawback is that, as implemented in most software (including the excellent `cvam` package in `R`), it is extremely intensive on computer memory. This means that most models that run easily in other software will likely refuse to run on your laptop, giving an "out of memory" error. 
+
+The loglinear formulation of LCA is the basis of the powerful Latent Gold software, as well as its predecessor, the still-popular LEM program (https://jeroenvermunt.nl/). Latent Gold uses many optimizations, which mostly allow it to circumvent the "small models only" problem. Here, we will use `cvam`, whose implementation is very similar to LEM.
+
+To demonstrate the uses of loglinear LCA, we use the `carcinoma` data from the `poLCA` package.
+
+
+## Simple analysis using `poLCA`
+
+```{r}
+#| message: false
+library(tidyverse)
+library(poLCA)
+library(poLCA.extras)
+
+set.seed(202303)
+
+data(carcinoma)
+head(carcinoma %>% sample_n(10))
+```
+
+```{r}
+f_carcinoma <- cbind(A, B, C, D, E, F, G) ~ 1
+fit_polca <- poLCA(f_carcinoma, 
+                   nclass = 2,
+                   data = carcinoma, 
+                   nrep = 10,
+                   verbose = FALSE)
+
+fit_polca
+```
+
+From the poLCA model, using the bivariate residual (BVR) functionality in the `poLCA.extras` package, we can see that there are some considerable local dependencies. 
+
+```{r}
+bvr(fit_polca) |> round(1)
+bootstrap_bvr_pvals(f_carcinoma, 
+                    fit_polca = fit_polca, 
+                    data = carcinoma, R = 200)
+```
+## Simple and locally dependent LCA using `cvam`
+
+```{r}
+library(cvam)
+
+options(contrasts = rep("contr.sum", 2))
+
+dat <- carcinoma %>% mutate_all(as.factor)
+df_freq <- table(dat, useNA = "ifany") |> as.data.frame()
+
+# Create a new variable that is completely missing (and has 2 cats)
+df_freq$X <- latentFactor(NROW(df_freq), 2)
+
+# Create formula
+formula <- 
+  paste(names(df_freq)[!names(df_freq) %in% c("Freq", "X")],
+        collapse = " + ") %>% 
+  sprintf("~ X * (%s)", .) %>%
+  as.formula()
+
+system.time(
+  fit_cvam <- cvam(formula, data = df_freq,
+                   freq = Freq,
+                   control = list(startValJitter = 0.1)
+))
+
+summary(fit_cvam)
+
+what <- paste0("~", LETTERS[1:7], "|X") |> sapply(as.formula)
+est_indep <- cvamEstimate(c(~X, what), fit_cvam)
+est_indep
+```
+
+
+(Note that the Hessian-based se's cannot be trusted. We can look at the estimated se's in the marginal probability tables above, or use `cvam`'s MCMC option to obtain standard errors on the loglinear parmeters.)
+
+Now we update the model with the local dependences, held equal across classes.
+
+```{r}
+# formula_ld <- update(formula, ~ . + D:F + A:G + B:E)
+formula_ld <- update(formula, ~ . + (A+B+D+E+F+G)^2)
+
+system.time(
+  fit_cvam_ld <- 
+    cvam(formula_ld, data = df_freq, freq = Freq,
+         control = list(startValJitter = 0.05, iterMaxEM = 1000),
+         prior = cvam::cvamPrior(ridge = 0.1)
+))
+
+summary(fit_cvam_ld)
+
+est_locdep <- cvamEstimate(c(~X, what), fit_cvam_ld)
+est_locdep
+
+anova(fit_cvam, fit_cvam_ld, method = "BIC")
+```
+
+The local dependence model fits better.
+
+## Extensions to the basic LC model using loglinear formulation
+
+### Including covariates
+
+### Multiple latent variables
+
+### Linear effects among observed and latent variables (DFactor models)
+
+### Missing-not-at-random (MNAR) / Unseen data-dependent models
+
+## Doing everything by hand
+
+
+```{r}
+#| message: false
+
+options(contrasts = rep("contr.sum", 2))
+
+varnames <- LETTERS[1:5]
+sum_vars <- paste(varnames, collapse = "+")
+
+formula <- sprintf("Freq ~ X * (%s)", sum_vars)
+# formula <- sprintf("Freq ~ X * (%s) + B:E + G:A + D:F + B:G + G:D", sum_vars)
+
+df_freq <- carcinoma[, varnames] |> table() |> as.data.frame()
+n <- nrow(df_freq)
+df_freq$patnum <- 1:n
+
+df_expanded <- rbind(df_freq, df_freq)
+df_expanded$X <- rep(0:1, each = n)
+post_start <- runif(n)
+df_expanded$post <- c(post_start, 1-post_start)
+
+suppressWarnings( # LCAs often have boundary values within classes
+  for(i in 1:200) {
+    # M-step
+    # Loglinear model
+    fit_glm <- glm(formula, 
+                   data = df_expanded, weights = post, 
+                   family = "poisson")
+    
+    # E-step
+    eta.X <- predict(fit_glm) # Linear predictor given X
+    eta.X <- matrix(eta.X, nrow = n) |> t()
+    n.X <- sum(exp(eta.X)) # Sample size given X 
+    P_YX <- exp(eta.X)/n.X # Probability of each pattern, joint (X, Y)
+    
+    P_Y <- colSums(P_YX)
+    P_X.Y <- t(P_YX) / P_Y # Posterior of X given Y
+    
+    df_expanded$post <- as.vector(P_X.Y)
+})
+
+summary(fit_glm)
+
+P_X <- rowSums(P_YX) # Prior
+P_Y.X <- P_YX/P_X    # Conditional of Y given X
+
+P_Y.X_marginal <- sapply(varnames, function(v) {
+  apply(P_Y.X, 1, function(x) tapply(x, df_freq[, v], sum))
+})
+
+P_Y.X_marginal |> round(3)
+
+# fit_polca$probs |> lapply(round, 3)
+
+N <- sum(df_freq$Freq)
+
+expected <- P_Y * N
+observed <- df_freq$Freq
+
+loglik <- sum(observed * log(P_Y))
+deviance <- -2*loglik
+p <- length(coef(fit_glm))
+bic_deviance <- deviance + p*log(N)
+bic_deviance
+
+X2 <- sum((observed - expected)^2/expected)
+G2 <- 2*sum(observed * log(observed/expected), na.rm = TRUE)
+
+data.frame(Chisq=c(X2, fit_polca$Chisq), Gsqp=c(G2, fit_polca$Gsq), method=c("loglinear", "poLCA"))
+```
+
+
+### Alternative R implementation
+
+
+This does appear to work as well. It requires more hand-holding than `cvam`. 
+
+```{r}
+library(gllm)
+
+options(contrasts = rep("contr.treatment", 2))
+
+K <- 3
+
+df_expanded <- Reduce(rbind, replicate(K, df_freq, simplify = FALSE))
+df_expanded$X <- factor(rep(seq(K), each = n))
+
+formula_gllm <- ~ X * (A + B + C + D + E)
+X <- model.matrix(formula_gllm, data = df_expanded)
+s <- replicate(K, 1:nrow(df_freq))
+
+res <- emgllm(y = df_freq$Freq, s = s, X = X)
+res
+
+with(res, sum((fitted.values - observed.values)^2/fitted.values))
+with(res, 2*sum(observed.values * log(observed.values/fitted.values), na.rm = TRUE))
+
+```

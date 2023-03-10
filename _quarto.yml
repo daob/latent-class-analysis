@@ -1,0 +1,36 @@
+project:
+  type: website
+  output-dir: docs
+  
+website:
+  title: "Latent class analysis"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+  sidebar:
+    style: "docked"
+    search: true
+    contents:
+      - section: "Special topics"
+        contents:
+          - em-height.qmd
+          - em-categorical.qmd
+          - loglinear-LCA.qmd
+          - local-dependence.qmd
+      - section: "Applications"
+        contents:
+          - antireli.qmd
+          - protest-ESS.qmd
+          - project-reproduce-LCA.qmd
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+
+editor: visual
+
+execute:
+  freeze: auto  # re-render only when source changes

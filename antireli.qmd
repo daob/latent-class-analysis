@@ -1,0 +1,61 @@
+---
+title: "Anti-religious speech"
+author: "DL Oberski"
+format: 
+  html:
+    theme: zephyr
+    toc: true
+editor: visual
+execute:
+  cache: false
+---
+
+```{r}
+#| message: false
+library(tidyverse)
+library(broom)
+library(poLCA)
+```
+
+Read the data from the General Social Survey 1987. It's not old, it's a classic!
+
+```{r}
+antireli <- read.csv("https://daob.nl/files/lca/antireli_data.csv")
+
+head(antireli)
+```
+
+Show the data as pattern frequencies.
+
+```{r}
+table(antireli) |> knitr::kable()
+```
+
+Fit the model using poLCA.
+
+```{r}
+fit <- poLCA(cbind(Y1, Y2, Y3) ~ 1, data = antireli, nclass = 2)
+```
+
+Here is the default plot given by `polCA`.
+
+```{r}
+plot(fit)
+```
+
+In this case the default plot is still somewhat readable, but in practice it is not the best as data visualizations go. A simple line plot does a better job (in my personal & completely subjective opinion!) and allows you to display confidence intervals to boot. We use `tidy` from the `broom` package to extract the results and `ggplot` to plot.
+
+```{r}
+#| message: false
+#| warning: false
+tidy(fit) %>% 
+  filter(outcome == 2) %>% 
+  mutate(class = as.factor(class)) %>%
+  ggplot(aes(variable, estimate, group = class, color = class)) +
+  geom_point() + geom_line() + 
+  geom_errorbar(aes(ymin = estimate - 2*std.error, 
+                    ymax = estimate + 2*std.error), width = 0.2) +
+  theme_bw() +  scale_color_brewer(palette = "Set2")
+```
+
+You can play around with the implied probabilities in the Excel file <https://daob.nl/files/lca/antirel2.xlsx> (thanks to Jeroen Vermunt).

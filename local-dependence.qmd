@@ -1,0 +1,376 @@
+---
+title: "Local dependence LCA in R"
+author: "DL Oberski"
+format:
+  html:
+    code-fold: true
+    code-summary: "Show the code"
+    code-tools: true
+    theme: zephyr
+    toc: true
+editor: visual
+execute:
+  cache: true
+---
+
+## Local dependence in LCA
+
+The standard latent class "cluster" model specifies that the indicators $Y_1, Y_2, \ldots, Y_p$ should be *conditionally independent*, given the latent variable $X$, say, $$
+P(Y_1, Y_2, \ldots, Y_p | X) = \prod_{j = 1}^p P(Y_j | X).
+$$ The product on the right-hand side indicates this conditional independence.
+
+For example, suppose four diagnostic tests $Y_j$, for $j = 1, \ldots, p = 4$, have been used to test for a disease $X \in \{0, 1\}$. Then for all people within the "healthy" class ($X=0$, say), the four diagnostic tests should be like four independent biased coin flips, and the same should apply in the "diseased" class. This would be violated, for instance, when on diagnostic test depends on the results of another (e.g. the results of one are used to determine another), or when two tests use the same biological technique, thus giving similar errors. The same concern can be found in the SEM literature under the term "error correlation".
+
+Local dependence is a violation of the assumptions. Instead of the model given above, if, say, indicators $Y_1$ and $Y_2$ are locally dependent, we cannot use the simple form given on the right-hand side in that equation, and we are forced to write $$
+P(Y_1, Y_2, \ldots, Y_p | X) = P(Y_1, Y_2 | X) \prod_{j = 3}^p P(Y_j | X),
+$$ so we have to have a separate model for the conditional "cross-table" $P(Y_1, Y_2 | X)$. Ignoring this can have consequences for the solution and your subsequent conclusions. In the first, locally independent, equation above, the sensitivity ($P(Y_j = 1 | X = 1)$) and specificity ($P(Y_j = 0 | X = 0)$) of two indicators will look high to the model if the indicators are strongly dependent. But when this dependence was due to an error correlation, the sensitivity and specificity will be overestimated. In the extreme case, imagine including the same completely random coin flip under two different names, with two excellent indicators of the latent variable. The latent class model will then output the exact opposite of the truth: the coin flips will look reliable, while the excellent indicators will look worthless, as you can verify for yourself below.
+
+```{r}
+#| message: false
+options(warn = 1)
+library(poLCA)
+set.seed(202302)
+```
+
+```{r}
+n <- 2*50L # Ensure sample size is even
+sensitivity <- 0.8
+specificity <- 0.9
+
+true_x <- rep(1:2, each = n/2) # Create true classes
+probs_indicators <- c(1 - specificity, sensitivity)[true_x]
+
+# The following is a single completely useless noise variable
+# (adding 1 is necessary because poLCA expects Y ∈ {1,2})
+garbage_coinflip <- rbinom(n, 1, prob = 0.5) + 1
+
+# Here are two excellent indicators of true_x, both with Se=0.8, Sp=0.9
+great_indicator1 <- rbinom(n, 1, prob = probs_indicators) + 1
+great_indicator2 <- rbinom(n, 1, prob = probs_indicators) + 1
+
+# The data contain two completely worthless indicators, which 
+#   are completely dependent (in fact they are identical)
+# and two excellent indicators, which do have some small amount of error
+made_up_data <- data.frame(noise1 = garbage_coinflip, 
+                noise2 = garbage_coinflip, 
+                good1 = great_indicator1, 
+                good2 = great_indicator2)
+
+# Run the latent class model using poLCA
+fit_polca <- poLCA(cbind(noise1, noise2, good1, good2) ~ 1, nclass = 2, data = made_up_data)
+```
+
+```{r}
+library(flexmix)
+fit_fm_ld_direct <- 
+  flexmix(~1, data = made_up_data-1, 
+          k = 2, 
+          model = list(
+            FLXMCmvbinary(noise1 ~ 1),
+            FLXMRglmfix(formula = cbind(noise2, 1-noise2) ~ 1, 
+                        nested = list(k = 2, formula = ~ noise1),
+                        family = "binomial"), 
+            FLXMCmvbinary(good1 ~ 1),
+            FLXMCmvbinary(good2 ~ 1)))
+
+summary(fit_fm_ld_direct)
+parameters(fit_fm_ld_direct)
+```
+
+As you can see, according to LCA, the locally dependent random noise items are perfect, while the very good indicators are almost worthless -- exactly opposite to the truth. If you were so inclined, you could play around with the following elements to see how results might change:
+
+-   sensitivity and specificity values (currently $\text{Se}=`r sensitivity`$, $\text{Sp}=`r specificity`$);
+-   number of "good" indicators (currently two);
+-   number of dependent noise items (currently two);
+-   the amount of local dependence (currently perfect dependence).
+
+Including an additional class can model this dependence. You can verify this by changing `nclass = 2` to `nclass = 3` above to see how results change. This may be a satisfactory solution there is no strong substantive reason to prefer a specific number of classes. For example, when mixture modeling is used as a density estimation technique, or when the analysis is exploratory. But you may not want to increase the number of classes when the latent classes are intended to have some predefined meaning, as is the case for our diagnostic testing example. In that case, we would like the two classes to signify "no disease" and "disease", while possibly accounting for any local dependence.
+
+### Example data
+
+Data from Uebersax (2009), <https://www.john-uebersax.com/stat/condep.htm>. These are data on four diagnostic tests for human HIV virus (Table 1) reported by Alvord et al. (1988).
+
+```{r}
+#| message: false
+library(tidyverse)
+
+# https://www.john-uebersax.com/stat/condep.htm
+uebersax <- read_table("../Examples/uebersax.tab")
+
+uebersax_01 <- uebersax %>% 
+  mutate(across(A:D, `-`, 1)) %>% 
+  mutate(Freq = as.integer(Freq))
+
+# Convenience function to convert frequency data to full data 
+#.  by replicating rows. This is necessary because poLCA does
+#.  not handle frequency data directly.
+frequencies_to_fulldata <- function(df_freq) {
+  vnames <- names(df_freq)[-which(names(df_freq) == "Freq")]
+  
+  fulldata <- apply(df_freq, 1, function(row) {
+    if(row['Freq'] != 0)
+      t(replicate(row['Freq'], row[vnames], simplify = TRUE))
+    }) %>% Reduce(rbind, .) %>% as.data.frame
+  
+  names(fulldata) <- vnames
+
+  fulldata
+}
+
+# A dataset in which each row is replicated Freq number of 
+#   times. Doing as.data.frame(table(uebersax_fulldata)) should
+#.  give back the orginal, uebersax again
+uebersax_fulldata <- frequencies_to_fulldata(uebersax)
+```
+
+| Test | Description                       |
+|------|-----------------------------------|
+| A    | Radioimmunoassay of antigen ag121 |
+| B    | Radioimmunoassay of HIV p24       |
+| C    | Radioimmunoassay of HIV gp120     |
+| D    | Enzyme-linked immunosorbent assay |
+
+```{r}
+#| echo: true
+knitr::kable(uebersax_01)
+```
+
+Fit the model using `poLCA`.
+
+```{mermaid}
+flowchart TD
+  X((Disease)) --> A
+  X --> B
+  X --> C
+  X --> D
+```
+
+```{r}
+f_ueber <- cbind(A, B, C, D) ~ 1
+fit_ueber_polca <- poLCA(f_ueber, data = uebersax_fulldata)
+```
+
+## Detecting local dependence
+
+### Bivariate residuals
+
+We first load a few convenience functions that work with `poLCA` objects from the `poLCA.extras` package. You may need to install this using `remotes::install_github("daob/poLCA.extras")`.
+
+```{r}
+# remotes::install_github("daob/poLCA.extras")
+
+library(poLCA.extras)
+```
+
+```{r}
+bvr_ueber <- bvr(fit_ueber_polca) 
+bvr_ueber |> round(4) 
+```
+
+Indicators B and C appear to exhibit local dependence. That is the same conclusion reached by Uebersax. However, the BVRs are only approximately chi-square distributed, so they cannot be directly referred to a chi-square distribution. Instead we use a parametric bootstrap. The resulting bootstrapped $p$-values are:
+
+```{r}
+pvals_boot <- bootstrap_bvr_pvals(f_ueber, 
+                                  data = uebersax_fulldata,
+                                  fit_polca = fit_ueber_polca,
+                                  nclass = 2, nrep = 3)
+
+pvals_boot
+```
+
+So, the parametric bootstrap of our BVR values confirms there appears to be a local dependence between indicators B and C.
+
+Now let's look at the bivariate residuals for our extreme earlier example, with perfect error dependence of two noise variables.
+
+```{r}
+bvr(fit_polca)
+
+# The bootstrap is not really necessary, and gives the 
+#   expected result. If you wished to confirm this, you could 
+#   uncomment the code below:
+#bootstrap_bvr_pvals(cbind(noise1, noise2, good1, good2) ~ 1, 
+#                                  data = made_up_data,
+#                                  fit_polca = fit_polca,
+#                                  nclass = 2, nrep = 5)
+```
+
+Note that the BVR detects local dependence, but the wrong pair of variables is singled out! This is because the latent class variable in the above, extreme, solution has taken over the role of the error dependence, while the "error dependence" is actually the substantively interesting disease status. While this is probably an extreme situation that is not particularly plausible in many applications. Still, it serves as an important warning that error dependencies found might not correspond to the "true" dependencies.
+
+## Modeling local dependence
+
+Now that we know:
+
+-   There is strong local dependence, and
+-   The local dependence can make a large difference to the results;
+
+what can we do about it? As mentioned above, the simplest solution is always to increase the number of classes. But when this is not desired there are some ways of keeping the number of classes the same, but allowing for dependence within those classes.
+
+```{r}
+#| message: false
+library(flexmix)
+```
+
+### Joint item method
+
+```{mermaid}
+flowchart TD
+  X((Disease)) --> A
+  X --> BC
+  X --> D
+```
+
+First we reproduce the independence model, this time using `flexmix`.
+
+```{r}
+fit_fm <- flexmix(cbind(A, B, C, D) ~ 1, k = 2, 
+                  weights = ~Freq,
+                  data = uebersax_01, 
+                  model = FLXMCmvbinary())
+
+round(parameters(fit_fm), 4)
+BIC(fit_fm)
+```
+
+Next, we model the indicators B and C jointly, using a multinomial model. The same could be achieved by combining the two items into a single indicator, but here we have done that using the `interaction()` function within the model formula.
+
+```{r}
+fit_fm_ld <- flexmix(cbind(A, B, C, D) ~ 1, k = 2, 
+                  weights = ~Freq,
+                  data = uebersax_01, 
+                  model = list(
+                    FLXMCmvbinary(A ~ 1),
+                    FLXMRmultinom(I(interaction(B, C)) ~ .),
+                    FLXMCmvbinary(D ~ 1))
+)
+
+parameters(fit_fm_ld)
+BIC(fit_fm_ld)
+```
+
+Item conditional probabilities can still be calculated by summing over the joint crosstable.
+
+```{r}
+est <- fitted(fit_fm_ld)
+
+indices <- with(uebersax_01, 
+     str_split(levels(interaction(B, C)), "\\.", 
+               simplify = TRUE) |>
+       apply(2, as.numeric))
+
+cbind(
+  B1 = tapply(est$Comp.1[1, 2:5], indices[, 1], sum),
+  B2 = tapply(est$Comp.2[1, 2:5], indices[, 1], sum),
+  C1 = tapply(est$Comp.1[1, 2:5], indices[, 2], sum),
+  C2 = tapply(est$Comp.2[1, 2:5], indices[, 2], sum)
+) |> round(4)
+```
+
+### Direct effect method
+
+With local dependence as a direct effect (Hagenaars), equal across classes
+
+```{mermaid}
+flowchart TD
+  X((Disease)) --> A
+  X --> B
+  X --> C
+  X --> D
+  C --> B
+```
+
+```{r}
+fit_fm_ld_direct <- 
+  flexmix(~1, data = uebersax_01, k = 2, 
+          weights = ~Freq,
+          model = list(
+            FLXMCmvbinary(A ~ 1),
+            FLXMRglmfix(formula = cbind(B, 1-B) ~ 1, 
+                        nested = list(k = 2, formula = ~ C),
+                        family = "binomial"), 
+            FLXMCmvbinary(C ~ 1),
+            FLXMCmvbinary(D ~ 1)))
+
+summary(fit_fm_ld_direct)
+parameters(fit_fm_ld_direct) |> lapply(round, 4)
+```
+
+We can again calculate a conditional probability in each class for B, this time by summing over values of C. Because the model is conditional on C, this time we weight by the marginal of C, i.e. $P(B | X) = \sum_C P(B | X, C) P(C)$.
+
+```{r}
+P_B_given_XC <- predict(fit_fm_ld_direct, 
+                        newdata = data.frame(C=0:1))
+
+P_C <- xtabs(Freq~C, data = uebersax_01) |> prop.table()
+
+c(Comp.1.avg=sum(P_B_given_XC[[1]][, 2] * P_C), 
+  Comp.2.avg=sum(P_B_given_XC[[2]][, 2] * P_C))
+```
+
+### Loglinear formulation
+
+
+We can use the excellent `cvam` package to create a loglinear latent class model. This allows for full flexibility, including the addition of local dependence parameters that do not require an arbitrary choice of "dependent" observed variable. 
+
+```{mermaid}
+flowchart TD
+  X((Disease)) --> A
+  X --> B
+  X --> C
+  X --> D
+  C <--> B
+```
+
+This is probably the best solution, if you can make it work. It only tends to work for smaller examples since `cvam` has trouble with larger complete data cross-tables. 
+
+It works great for the small `uebersax` example. 
+
+```{r}
+
+library(cvam)
+
+options(contrasts = c("contr.sum", "contr.linear"))
+
+df_freq <- uebersax %>% mutate_at(1:4, as.factor)
+df_freq$X <- latentFactor(NROW(df_freq), 2)
+
+formula <- 
+  paste(names(df_freq)[!names(df_freq) %in% c("Freq", "X")],
+        collapse = " + ") %>% 
+  sprintf("~ X * (%s)", .) %>%
+  as.formula()
+
+system.time(
+  fit_cvam <- cvam(formula, data = df_freq,
+                   freq = Freq,
+                   control = list(startValJitter = 0.1)
+))
+
+summary(fit_cvam)
+
+what <- paste0("~", LETTERS[1:4], "|X") |> sapply(as.formula)
+est_indep <- cvamEstimate(c(~X, what), fit_cvam)
+est_indep
+```
+
+(Note that the Hessian-based se's cannot be trusted. We can look at the estimated se's in the marginal probability tables above, or use `cvam`'s MCMC option to obtain standard errors on the loglinear parmeters.)
+
+Now we update the model with the local dependence $B \times C$, held equal across classes.
+
+```{r}
+formula_ld <- update(formula, ~ . + B:C)
+
+system.time(
+  fit_cvam_ld <- 
+    cvam(formula_ld, data = df_freq, freq = Freq,
+         control = list(startValJitter = 0.05)
+))
+
+summary(fit_cvam_ld)
+
+est_locdep <- cvamEstimate(c(~X, what), fit_cvam_ld)
+est_locdep
+
+anova(fit_cvam, fit_cvam_ld)
+```
+
+The local dependence model fits better, but the estimated (conditional) probabilities do not change much. 

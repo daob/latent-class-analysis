@@ -1,0 +1,242 @@
+---
+title: "Political activism in Greece"
+author: "DL Oberski"
+format: 
+  html:
+    theme: zephyr
+    toc: true
+editor: visual
+execute:
+  cache: true
+---
+
+## Political activism in ESS
+
+```{r}
+#| message: false
+
+set.seed(202303)
+
+library(tidyverse)
+library(broom)
+library(haven)
+library(poLCA)
+```
+
+### Data
+
+Read the data from the European Social Survey, round 4 (Greece).
+
+For each of these survey questions, 1="Yes" and 2="No".
+
+- `contplt` - Contacted politician or government official last 12 months
+- `wrkprty` - Worked in political party or action group last 12 months
+- `wrkorg` - Worked in another organisation or association last 12 months
+- `badge` - Worn or displayed campaign badge/sticker last 12 months
+- `sgnptit` - Signed petition last 12 months
+- `pbldmn` - Taken part in lawful public demonstration last 12 months
+- `bctprd` - Boycotted certain products last 12 months 
+- `gndr` - Gender 
+-  `agea` - Age of respondent, calculated 
+
+```{r}
+#| message: false
+ess_greece <- read_csv("https://daob.nl/files/lca/ess_greece.csv.gz") 
+
+ess_greece |> rmarkdown::paged_table()
+```
+
+Show the data as pattern frequencies.
+
+```{r}
+table(ess_greece) %>% 
+  as.data.frame() %>%
+  filter(Freq != 0) %>% 
+  rmarkdown::paged_table()
+```
+### Try out models with different number of classes 
+
+Create a convenience function that will fit the K-class model to
+the political participation data.
+
+```{r}
+fitLCA <- function(k) {
+  f <- cbind(contplt, wrkprty, wrkorg, badge, 
+           sgnptit, pbldmn, bctprd) ~ 1
+  
+  poLCA(formula = f, data = ess_greece, nclass = k, 
+        nrep = 10, verbose = FALSE)
+}
+```
+
+Apply the function to successively increasingly classes K = 1, 2, 3, ..., 6. (Note: this can take a while!)
+
+```{r}
+MK <- lapply(1:6, fitLCA)
+```
+
+### Compare model fit
+
+Possible to look at AIC, BIC, etc.
+
+```{r}
+aic_values <- sapply(MK, `[[`, "aic")
+bic_values <- sapply(MK, `[[`, "bic")
+```
+
+```{r}
+plot(seq_along(aic_values), aic_values, type = "b", xlab = "Number of classes", ylab = "AIC", las = 2)
+```
+
+```{r}
+plot(seq_along(aic_values), aic_values, type = "b", xlab = "Number of classes", ylab = "BIC", las = 2)
+```
+
+
+
+### Select a model
+
+
+We select the four-class model.
+
+```{r}
+form_activism <- cbind(contplt, wrkprty, wrkorg, 
+                       badge, sgnptit, pbldmn, bctprd) ~ 1
+
+fit <- poLCA(form_activism, 
+             data = ess_greece, 
+             nclass = 4, 
+             nrep = 20, verbose = FALSE)
+```
+
+Here is the default plot given by `polCA`.
+
+```{r}
+plot(fit)
+```
+
+In this case the default plot is still somewhat readable, but in practice it is not the best as data visualizations go. A simple line plot does a better job (in my personal & completely subjective opinion!) and allows you to display confidence intervals to boot. We use `tidy` from the `broom` package to extract the results and `ggplot` to plot.
+
+```{r}
+#| message: false
+#| warning: false
+tidy(fit) %>% 
+  filter(outcome == 2) %>% 
+  mutate(class = as.factor(class)) %>%
+  ggplot(aes(variable, estimate, group = class, color = class)) +
+  geom_point() + geom_line() + 
+  geom_errorbar(aes(ymin = estimate - 2*std.error, 
+                    ymax = estimate + 2*std.error), width = 0.2) +
+  theme_bw() + scale_color_brewer(palette = "Set2")
+```
+
+### Local fit
+
+```{r}
+library(poLCA.extras)
+
+bvr(fit)
+```
+```{r}
+bootstrap_bvr_pvals(form_activism, fit, ess_greece, R = 200)
+```
+
+### Classification quality
+
+Create a data frame with the posterior class memberships and predicted class has the actual classification (predclass is the "modal assignment")
+
+Use the four-class model as the selected model
+
+```{r}
+posteriors <- data.frame(post = fit$posterior,
+                         predclass = fit$predclass)
+
+classification_table <- posteriors %>% 
+  group_by(predclass) %>% 
+  summarize(across(starts_with("post."), ~ sum(.x)))
+
+classification_table <- classification_table[,-1] |> as.matrix()
+
+# Adopt the notation X=true latent class, W=assigned class
+colnames(classification_table) <- paste0("X=", 1:4)
+rownames(classification_table) <- paste0("W=", 1:4)
+
+classification_table %>% round(1)
+```
+
+With column proportions:
+
+```{r}
+classification_table |>
+  prop.table(2) |> 
+  round(3)
+```
+
+#### Entropy $R^2$ and classification errors
+
+Calculate classification errors from classification table:
+
+```{r}
+1 - sum(diag(classification_table)) / sum(classification_table)
+```
+
+Entropy $R^2$:
+
+```{r}
+entropy <- function(p) sum(-p * log(p))
+
+error_prior <- entropy(MK[[4]]$P) # Class proportions
+error_post <- mean(apply(MK[[4]]$posterior, 1, entropy))
+(R2_entropy  <- (error_prior - error_post) / error_prior) # 0.741
+```
+
+### Model with covariates
+
+Now we fit the four-class model, but include covariates that predict the class membership. Class membership is predicted by gender and a quadratic age effect.
+
+```{r}
+form_activism <- cbind(contplt, wrkprty, wrkorg, 
+                       badge, sgnptit, pbldmn, bctprd) ~ 
+  gndr + agea + I(agea^2)
+
+fit_covariates <- 
+  poLCA(form_activism, 
+        data = ess_greece, nclass = 4, 
+        nrep = 50, verbose = FALSE)
+```
+
+The results now include multinomial regression coefficients in a model predicting class membership. 
+
+```{r}
+fit_covariates
+```
+The solution may have changed now that covariates are included.  
+
+```{r}
+#| message: false
+#| warning: false
+tidy(fit_covariates) %>% 
+  filter(outcome == 2) %>% 
+  mutate(class = as.factor(class)) %>%
+  ggplot(aes(variable, estimate, group = class, color = class)) +
+  geom_point() + geom_line() + 
+  geom_errorbar(aes(ymin = estimate - 2*std.error, 
+                    ymax = estimate + 2*std.error), width = 0.2) +
+  theme_bw() + scale_color_brewer(palette = "Set2")
+```
+
+
+#### Effects plot
+
+We can easily plot the results of the multinomial model using the `effects` library. 
+
+```{r}
+#| message: false
+library(effects)
+```
+
+```{r}
+effect_age <- predictorEffects(fit_covariates, ~agea*gndr)
+plot(effect_age, lines=list(multiline=TRUE))
+```
+

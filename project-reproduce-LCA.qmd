@@ -1,0 +1,70 @@
+---
+title: "PROJECT - Reproducing a published LCA"
+author: "DL Oberski"
+format: html
+editor: visual
+---
+
+## Reproducing a published LCA
+
+
+In this project, you will work on reading and reproducing the following paper:
+
+|   Beller, J. (2021). Morbidity profiles in Europe and Israel: International comparisons 
+|           from 20 countries using biopsychosocial indicators of health via latent class analysis. 
+|           _Journal of Public Health_. <https://doi.org/10.1007/s10389-021-01673-0>
+
+You can download a copy of the paper here: <https://daob.nl/files/lca/beller-2021.pdf>
+
+The data used in this study were from the European Social Survey, round 7 (2014). You can find these (and more recent) data here: <https://www.europeansocialsurvey.org/data/>. You will need to register to download the data. Registration is free and should be instantaneous.
+
+## Assignment
+
+(@)	Obtain the data
+
+(@)	Create the dataset as indicated in the article. You should end up with 16 indicators, (excluding any covariates such as country, age, gender, or education)
+    a.	Which steps taken in the paper could you criticize? Do you think they will have a large impact on the final conclusions?
+    b.	Create two different versions of the data, one of which is as close as possible to the paper, the other differing only on the aspect of data wrangling that you believe will be the most influential. 
+    c.	Create a smaller dataset, selecting only one country of your choice. You will use this smaller dataset to initially debug the subsequent analyses. From the list of covariates in table 4, select a maximum of two or three that you find of interest. 
+    d.	For each recode, double-check your recode by creating a before/after cross-table, or by calculating means within categories for dichotomized variables. Did everything go according to your plan?
+    e.	Perform a sanity check on your data. Pay attention to [Roger Peng’s EDA advice](https://bookdown.org/rdpeng/exdata/exploratory-data-analysis-checklist.html):
+        i.	Read in your data : Are the names of the variables correct, concise, and unambiguous? 
+        ii.	 Check the packaging : Are the number of rows and columns as expected? Are the types of your variables as expected? Do your variables contain weird values (such as -99)? Are some variables all-missing or constant?
+        iii.	Look at the top and the bottom of your data : use head() and tail() or some other method to check the top and bottom.
+        iv.	 Check your “n”s : do the sample sizes correspond to the documentation? To the paper?  
+        v.	 Validate with at least one external data source : check descriptives of your data against those in the paper (small differences may occur). Are distributions of study variables (e.g. depression) and background variables (e.g. age, gender, education) plausible? (you may want to look at official statistics for your chosen country)
+        vi.	 Make a plot, look at descriptives : you are free to make sensible choices of “checks” here. Examples could include checking that correlations between closely related variables are not negative, scatterplots of continuous variables or dotplots/boxplots of continuous/categorical variabels to check for outliers, etc.
+
+(@)	Use `poLCA` to estimate the LCA with 1, 2, 3, 4, 5, and 6 classes _on your small dataset_. (_hint_: it is always a good idea to start off with a small number of indicators to check that things are going OK, before increasing the model size)
+    a.	Check: Did you specify everything correctly?  
+    b.	Do a sanity check on the results. Pay attention to:
+        i.	Reported sample sizes
+        ii.	Unexpected direction of associations 
+        iii.	Forgotten indicators, or inadvertently included covariates as indicators
+    c.	Rerun your analysis with multiple random starts, and compare the best log-likelihood, ensuring your solution did not end up in a local maximum
+    
+    d.	Model evaluation: 
+        i.	Compare loglikelihood, BIC and AIC among the 6 models. Use a scree plot to select the number of classes. 
+        ii.	Look at bivariate residuals (BVRs). Are there any local dependencies? Is it better to increase the number of classes, or fit a model with fewer classes but local dependence?
+        iii. (_BONUS_) Perform a parametric bootstrap-likelihood ration test of your selected model. (_hint_: package `flexmix` allows parametric bootstrapping of the LRT via the function `LR_test`.)
+    
+    e. Model interpretation: 
+        i. Look at probability profiles. Without looking at the Beller (2021) paper, create a description for yourself of the profiles you have created.
+        ii. Create a table of the estimated class sizes. Are any classes too small to be of interest?
+        iii. Create a classification table and calculate the entropy $R^2$. Which classes are well-separated?
+        iv. Look at the results for the prediction of class membership from covariates. Are the effects in the expected direction? What are the confidence intervals of the parameter estimates? (_BONUS:_) Create a plot of each covariate versus the probability to belong to each class. 
+
+(@) Repeat the analysis and interpretation steps with a larger model, using all countries. 
+
+(@) Compare the results from your two datasets from part 2(c) above.
+
+(@) How does your analysis compare to the results in Beller (2021)? Go through each of the steps in the previous question and report any similarities/differences.
+
+(@) What do you conclude about profiles of health status in the ESS?
+
+(@)	_BONUS:_ 
+    Bootstrap (empirically) the standard errors of the model and compare with the standard se’s given in `poCLA` (_hint_: packages `flexmix` and  `BayesLCA` allow bootstrapping. To get bootstrap se’s using `blca`, use argument method = “em”, and `blca.boot`
+    
+(@)	_BONUS:_ Do the analysis with a newer ESS dataset and compare the results. 
+
+
