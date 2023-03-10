@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.269">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="DL Oberski">
+
+<title>Latent class analysis - Loglinear LCA</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-sidebar docked nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Latent class analysis</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html">
+ <span class="menu-text">Home</span></a>
+  </li>  
+</ul>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title">Loglinear LCA</h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation docked overflow-auto">
+      <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">Special topics</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./em-height.html" class="sidebar-item-text sidebar-link">EM: simple example</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./EM-categorical.html" class="sidebar-item-text sidebar-link">EM: categorical indicators</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./loglinear-LCA.html" class="sidebar-item-text sidebar-link active">Loglinear LCA</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./local-dependence.html" class="sidebar-item-text sidebar-link">Local dependence LCA in R</a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">Applications</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./antireli.html" class="sidebar-item-text sidebar-link">Anti-religious speech</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./protest-ESS.html" class="sidebar-item-text sidebar-link">Political activism in Greece</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./project-reproduce-LCA.html" class="sidebar-item-text sidebar-link">PROJECT - Reproducing a published LCA</a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#loglinear-formulation-of-lca" id="toc-loglinear-formulation-of-lca" class="nav-link active" data-scroll-target="#loglinear-formulation-of-lca">Loglinear formulation of LCA</a>
+  <ul class="collapse">
+  <li><a href="#simple-analysis-using-polca" id="toc-simple-analysis-using-polca" class="nav-link" data-scroll-target="#simple-analysis-using-polca">Simple analysis using <code>poLCA</code></a></li>
+  <li><a href="#simple-and-locally-dependent-lca-using-cvam" id="toc-simple-and-locally-dependent-lca-using-cvam" class="nav-link" data-scroll-target="#simple-and-locally-dependent-lca-using-cvam">Simple and locally dependent LCA using <code>cvam</code></a></li>
+  <li><a href="#extensions-to-the-basic-lc-model-using-loglinear-formulation" id="toc-extensions-to-the-basic-lc-model-using-loglinear-formulation" class="nav-link" data-scroll-target="#extensions-to-the-basic-lc-model-using-loglinear-formulation">Extensions to the basic LC model using loglinear formulation</a>
+  <ul class="collapse">
+  <li><a href="#including-covariates" id="toc-including-covariates" class="nav-link" data-scroll-target="#including-covariates">Including covariates</a></li>
+  <li><a href="#multiple-latent-variables" id="toc-multiple-latent-variables" class="nav-link" data-scroll-target="#multiple-latent-variables">Multiple latent variables</a></li>
+  <li><a href="#linear-effects-among-observed-and-latent-variables-dfactor-models" id="toc-linear-effects-among-observed-and-latent-variables-dfactor-models" class="nav-link" data-scroll-target="#linear-effects-among-observed-and-latent-variables-dfactor-models">Linear effects among observed and latent variables (DFactor models)</a></li>
+  <li><a href="#missing-not-at-random-mnar-unseen-data-dependent-models" id="toc-missing-not-at-random-mnar-unseen-data-dependent-models" class="nav-link" data-scroll-target="#missing-not-at-random-mnar-unseen-data-dependent-models">Missing-not-at-random (MNAR) / Unseen data-dependent models</a></li>
+  </ul></li>
+  <li><a href="#doing-everything-by-hand" id="toc-doing-everything-by-hand" class="nav-link" data-scroll-target="#doing-everything-by-hand">Doing everything by hand</a>
+  <ul class="collapse">
+  <li><a href="#alternative-r-implementation" id="toc-alternative-r-implementation" class="nav-link" data-scroll-target="#alternative-r-implementation">Alternative R implementation</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title d-none d-lg-block">Loglinear LCA</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>DL Oberski </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="loglinear-formulation-of-lca" class="level1">
+<h1>Loglinear formulation of LCA</h1>
+<p>The loglinear formulation of LCA is very powerful. It only works for categorical data, but, in addition to the “plain vanilla” kind of locally independent LCA, it allows for:</p>
+<ul>
+<li>Built-in handling of missing data (everything is a missing data problem);</li>
+<li>NMAR (“unseen data-dependent”) models;</li>
+<li>Multiple latent class variables, unlocking arbitrary modelling with latent variables, i.e.&nbsp;“categorical SEM”;</li>
+<li>“Linear by linear” and “linear by nominal” effects, making for more parsimonious models, unlocking:</li>
+<li>Discretized, “nonparametric” versions of IRT models (“DFactor models” in Latent Gold)</li>
+<li>Covariates/concomitant variables, including “measurement invariance” models;</li>
+<li>Facilities for complex sampling designs, i.e.&nbsp;weighting, clustering, and stratification;</li>
+<li>and more.</li>
+</ul>
+<p>The largest drawback is that, as implemented in most software (including the excellent <code>cvam</code> package in <code>R</code>), it is extremely intensive on computer memory. This means that most models that run easily in other software will likely refuse to run on your laptop, giving an “out of memory” error.</p>
+<p>The loglinear formulation of LCA is the basis of the powerful Latent Gold software, as well as its predecessor, the still-popular LEM program (https://jeroenvermunt.nl/). Latent Gold uses many optimizations, which mostly allow it to circumvent the “small models only” problem. Here, we will use <code>cvam</code>, whose implementation is very similar to LEM.</p>
+<p>To demonstrate the uses of loglinear LCA, we use the <code>carcinoma</code> data from the <code>poLCA</code> package.</p>
+<section id="simple-analysis-using-polca" class="level2">
+<h2 class="anchored" data-anchor-id="simple-analysis-using-polca">Simple analysis using <code>poLCA</code></h2>
+<div class="cell" data-hash="loglinear-LCA_cache/html/unnamed-chunk-1_ad12eb9bbd20d90aadd07fbe56d85c76">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(poLCA)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(poLCA.extras)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">202303</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(carcinoma)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(carcinoma <span class="sc">%&gt;%</span> <span class="fu">sample_n</span>(<span class="dv">10</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>  A B C D E F G
+1 1 1 1 1 1 1 1
+2 2 2 2 2 2 2 2
+3 1 1 1 1 1 1 1
+4 2 2 1 1 2 1 2
+5 2 2 2 2 2 2 2
+6 1 1 1 1 1 1 1</code></pre>
+</div>
+</div>
+<div class="cell" data-hash="loglinear-LCA_cache/html/unnamed-chunk-2_9df12722b91e62dfade495ba68725885">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>f_carcinoma <span class="ot">&lt;-</span> <span class="fu">cbind</span>(A, B, C, D, E, F, G) <span class="sc">~</span> <span class="dv">1</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>fit_polca <span class="ot">&lt;-</span> <span class="fu">poLCA</span>(f_carcinoma, </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">nclass =</span> <span class="dv">2</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">data =</span> carcinoma, </span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">nrep =</span> <span class="dv">10</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>                   <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>fit_polca</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Conditional item response (column) probabilities,
+ by outcome variable, for each class (row) 
+ 
+$A
+           Pr(1)  Pr(2)
+class 1:  0.0000 1.0000
+class 2:  0.8835 0.1165
+
+$B
+           Pr(1)  Pr(2)
+class 1:  0.0169 0.9831
+class 2:  0.6456 0.3544
+
+$C
+           Pr(1)  Pr(2)
+class 1:  0.2391 0.7609
+class 2:  1.0000 0.0000
+
+$D
+           Pr(1)  Pr(2)
+class 1:  0.4589 0.5411
+class 2:  1.0000 0.0000
+
+$E
+           Pr(1)  Pr(2)
+class 1:  0.0214 0.9786
+class 2:  0.7771 0.2229
+
+$F
+           Pr(1)  Pr(2)
+class 1:  0.5773 0.4227
+class 2:  1.0000 0.0000
+
+$G
+           Pr(1)  Pr(2)
+class 1:  0.0000 1.0000
+class 2:  0.8835 0.1165
+
+Estimated class population shares 
+ 0.5012 0.4988 
+ 
+Predicted class memberships (by modal posterior prob.) 
+ 0.5 0.5 
+ 
+========================================================= 
+Fit for 2 latent classes: 
+========================================================= 
+number of observations: 118 
+number of estimated parameters: 15 
+residual degrees of freedom: 103 
+maximum log-likelihood: -317.2568 
+ 
+AIC(2): 664.5137
+BIC(2): 706.0739
+G^2(2): 62.36543 (Likelihood ratio/deviance statistic) 
+X^2(2): 92.64814 (Chi-square goodness of fit) 
+ </code></pre>
+</div>
+</div>
+<p>From the poLCA model, using the bivariate residual (BVR) functionality in the <code>poLCA.extras</code> package, we can see that there are some considerable local dependencies.</p>
+<div class="cell" data-hash="loglinear-LCA_cache/html/unnamed-chunk-3_a51eed374b3dce46492e87306daa75f8">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bvr</span>(fit_polca) <span class="sc">|&gt;</span> <span class="fu">round</span>(<span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>    A   B   C   D   E   F
+B 1.9                    
+C 0.5 4.1                
+D 0.5 1.2 1.5            
+E 0.6 8.3 0.6 9.3        
+F 0.5 1.2 1.9 8.2 0.6    
+G 7.1 5.7 1.5 1.0 1.9 0.9</code></pre>
+</div>
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bootstrap_bvr_pvals</span>(f_carcinoma, </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>                    <span class="at">fit_polca =</span> fit_polca, </span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">data =</span> carcinoma, <span class="at">R =</span> <span class="dv">200</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>      A     B     C     D     E     F
+B 0.205                              
+C 0.190 0.090                        
+D 0.105 0.360 0.150                  
+E 0.645 0.000 0.590 0.065            
+F 0.080 0.290 0.095 0.000 0.450      
+G 0.005 0.010 0.035 0.020 0.170 0.015</code></pre>
+</div>
+</div>
+</section>
+<section id="simple-and-locally-dependent-lca-using-cvam" class="level2">
+<h2 class="anchored" data-anchor-id="simple-and-locally-dependent-lca-using-cvam">Simple and locally dependent LCA using <code>cvam</code></h2>
+<div class="cell" data-hash="loglinear-LCA_cache/html/unnamed-chunk-4_f2aaab66e47d3c83194b18c484af8ac6">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(cvam)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">contrasts =</span> <span class="fu">rep</span>(<span class="st">"contr.sum"</span>, <span class="dv">2</span>))</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> carcinoma <span class="sc">%&gt;%</span> <span class="fu">mutate_all</span>(as.factor)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>df_freq <span class="ot">&lt;-</span> <span class="fu">table</span>(dat, <span class="at">useNA =</span> <span class="st">"ifany"</span>) <span class="sc">|&gt;</span> <span class="fu">as.data.frame</span>()</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a new variable that is completely missing (and has 2 cats)</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>df_freq<span class="sc">$</span>X <span class="ot">&lt;-</span> <span class="fu">latentFactor</span>(<span class="fu">NROW</span>(df_freq), <span class="dv">2</span>)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Create formula</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>formula <span class="ot">&lt;-</span> </span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste</span>(<span class="fu">names</span>(df_freq)[<span class="sc">!</span><span class="fu">names</span>(df_freq) <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Freq"</span>, <span class="st">"X"</span>)],</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>        <span class="at">collapse =</span> <span class="st">" + "</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sprintf</span>(<span class="st">"~ X * (%s)"</span>, .) <span class="sc">%&gt;%</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.formula</span>()</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  fit_cvam <span class="ot">&lt;-</span> <span class="fu">cvam</span>(formula, <span class="at">data =</span> df_freq,</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>                   <span class="at">freq =</span> Freq,</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>                   <span class="at">control =</span> <span class="fu">list</span>(<span class="at">startValJitter =</span> <span class="fl">0.1</span>)</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Note: Estimate at or near boundary
+Estimated variances may be unreliable</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   user  system elapsed 
+  0.127   0.006   0.142 </code></pre>
+</div>
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_cvam)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>~ X * (A + B + C + D + E + F + G)
+
+Prior:
+      Flattening frequency = 0
+Total nuggets + flattening = 0
+              Ridge factor = 0
+          Intensity factor = 1
+
+Sample size:
+              total N in supplied data = 118
+N from supplied data used in model fit = 118
+           prior effective sample size =   0
+
+Degrees of freedom:
+    patterns of coarsened data = 128
+  cells in complete-data table = 256
+cells without latent variables = 128
+         structural zero cells =   0
+   parameters in Poisson model =  16
+                            df = 112
+
+Starting values:
+default, center
+jitter SD = 0.100000
+
+EM algorithm:
+Converged at iteration 42
+Gradient length = 0.000007
+
+  Final logP = 127.6839
+Final loglik = 127.6839
+
+Estimates from EM, with Hessian-based SEs
+                coef       SE zstat   pval
+(Intercept) -23.4100 669.5679 -0.03 0.9721
+X1            3.3833 669.5680  0.01 0.9960
+A1           -3.8298 315.4106 -0.01 0.9903
+B1           -0.8658   0.2612 -3.31 0.0009
+C1            4.2032 261.6161  0.02 0.9872
+D1            4.4529 266.4354  0.02 0.9867
+E1           -0.6439   0.2572 -2.50 0.0123
+F1            4.5816 266.0340  0.02 0.9863
+G1           -4.0925 372.3337 -0.01 0.9912
+X1:A1        -4.8428 315.4106 -0.02 0.9877
+X1:B1        -1.1657   0.2614 -4.46 0.0000
+X1:C1        -4.7819 261.6161 -0.02 0.9854
+X1:D1        -4.5352 266.4354 -0.02 0.9864
+X1:E1        -1.2683   0.2590 -4.90 0.0000
+X1:F1        -4.4257 266.0340 -0.02 0.9867
+X1:G1        -5.1055 372.3337 -0.01 0.9891</code></pre>
+</div>
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>what <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"~"</span>, LETTERS[<span class="dv">1</span><span class="sc">:</span><span class="dv">7</span>], <span class="st">"|X"</span>) <span class="sc">|&gt;</span> <span class="fu">sapply</span>(as.formula)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>est_indep <span class="ot">&lt;-</span> <span class="fu">cvamEstimate</span>(<span class="fu">c</span>(<span class="sc">~</span>X, what), fit_cvam)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>est_indep</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Estimates and SE's from EM, linearized
+~ X
+  X   prob     SE prob.lower prob.upper
+1 1 0.5012 0.0463     0.4113     0.5910
+2 2 0.4988 0.0463     0.4090     0.5887
+~ A | X
+  X A   prob     SE prob.lower prob.upper
+1 1 1 0.0000 0.0000     0.0000     1.0000
+2 1 2 1.0000 0.0000     0.0000     1.0000
+3 2 1 0.8835 0.0429     0.7702     0.9449
+4 2 2 0.1165 0.0429     0.0551     0.2298
+~ B | X
+  X B   prob     SE prob.lower prob.upper
+1 1 1 0.0169 0.0168     0.0024     0.1105
+2 1 2 0.9831 0.0168     0.8895     0.9976
+3 2 1 0.6456 0.0627     0.5156     0.7572
+4 2 2 0.3544 0.0627     0.2428     0.4844
+~ C | X
+  X C   prob     SE prob.lower prob.upper
+1 1 1 0.2391 0.0561     0.1466     0.3650
+2 1 2 0.7609 0.0561     0.6350     0.8534
+3 2 1 1.0000 0.0000     0.0000     1.0000
+4 2 2 0.0000 0.0000     0.0000     1.0000
+~ D | X
+  X D   prob     SE prob.lower prob.upper
+1 1 1 0.4589 0.0651     0.3367     0.5863
+2 1 2 0.5411 0.0651     0.4137     0.6633
+3 2 1 1.0000 0.0000     0.0000     1.0000
+4 2 2 0.0000 0.0000     0.0000     1.0000
+~ E | X
+  X E   prob     SE prob.lower prob.upper
+1 1 1 0.0214 0.0206     0.0032     0.1305
+2 1 2 0.9786 0.0206     0.8695     0.9968
+3 2 1 0.7771 0.0545     0.6530     0.8659
+4 2 2 0.2229 0.0545     0.1341     0.3470
+~ F | X
+  X F   prob     SE prob.lower prob.upper
+1 1 1 0.5773 0.0644     0.4488     0.6961
+2 1 2 0.4227 0.0644     0.3039     0.5512
+3 2 1 1.0000 0.0000     0.0000     1.0000
+4 2 2 0.0000 0.0000     0.0000     1.0000
+~ G | X
+  X G   prob     SE prob.lower prob.upper
+1 1 1 0.0000 0.0000     0.0000     1.0000
+2 1 2 1.0000 0.0000     0.0000     1.0000
+3 2 1 0.8835 0.0429     0.7702     0.9449
+4 2 2 0.1165 0.0429     0.0551     0.2298</code></pre>
+</div>
+</div>
+<p>(Note that the Hessian-based se’s cannot be trusted. We can look at the estimated se’s in the marginal probability tables above, or use <code>cvam</code>’s MCMC option to obtain standard errors on the loglinear parmeters.)</p>
+<p>Now we update the model with the local dependences, held equal across classes.</p>
+<div class="cell" data-hash="loglinear-LCA_cache/html/unnamed-chunk-5_47d11e5cde8e785192902ac1e6c4f271">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># formula_ld &lt;- update(formula, ~ . + D:F + A:G + B:E)</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>formula_ld <span class="ot">&lt;-</span> <span class="fu">update</span>(formula, <span class="sc">~</span> . <span class="sc">+</span> (A<span class="sc">+</span>B<span class="sc">+</span>D<span class="sc">+</span>E<span class="sc">+</span>F<span class="sc">+</span>G)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  fit_cvam_ld <span class="ot">&lt;-</span> </span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cvam</span>(formula_ld, <span class="at">data =</span> df_freq, <span class="at">freq =</span> Freq,</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">control =</span> <span class="fu">list</span>(<span class="at">startValJitter =</span> <span class="fl">0.05</span>, <span class="at">iterMaxEM =</span> <span class="dv">1000</span>),</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">prior =</span> cvam<span class="sc">::</span><span class="fu">cvamPrior</span>(<span class="at">ridge =</span> <span class="fl">0.1</span>)</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Note: Estimate at or near boundary
+Estimated variances may be unreliable</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   user  system elapsed 
+  0.189   0.003   0.195 </code></pre>
+</div>
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_cvam_ld)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>~ X + A + B + C + D + E + F + G + X:A + X:B + X:C + X:D + X:E + X:F + X:G + A:B + A:D + A:E + A:F + A:G + B:D + B:E + B:F + B:G + D:E + D:F + D:G + E:F + E:G + F:G
+
+Prior:
+      Flattening frequency = 0.0
+Total nuggets + flattening = 0.0
+              Ridge factor = 0.1
+          Intensity factor = 1.0
+
+Sample size:
+              total N in supplied data = 118
+N from supplied data used in model fit = 118
+           prior effective sample size =   0
+
+Degrees of freedom:
+    patterns of coarsened data = 128
+  cells in complete-data table = 256
+cells without latent variables = 128
+         structural zero cells =   0
+   parameters in Poisson model =  31
+                            df =  97
+
+Starting values:
+default, center
+jitter SD = 0.050000
+
+EM algorithm:
+Converged at iteration 48
+Gradient length = 0.000007
+
+  Final logP = 156.3212
+Final loglik = 156.3619
+
+Estimates from EM, with Hessian-based SEs
+                coef     SE zstat   pval
+(Intercept) -7.44766 1.2413 -6.00 0.0000
+X1           0.05773 1.1782  0.05 0.9609
+A1          -1.07054 0.8586 -1.25 0.2124
+B1          -0.99729 0.6410 -1.56 0.1198
+C1           0.91826 0.4892  1.88 0.0605
+D1           1.37380 0.6926  1.98 0.0473
+E1          -0.63117 0.6675 -0.95 0.3444
+F1           1.44479 0.6807  2.12 0.0338
+G1          -0.61377 0.9487 -0.65 0.5177
+X1:A1       -1.15492 0.5704 -2.02 0.0429
+X1:B1        0.86834 0.5993  1.45 0.1473
+X1:C1       -1.80735 0.4922 -3.67 0.0002
+X1:D1       -0.43269 0.4615 -0.94 0.3484
+X1:E1       -1.20903 0.6867 -1.76 0.0783
+X1:F1       -0.90714 0.9970 -0.91 0.3629
+X1:G1       -1.15465 0.6863 -1.68 0.0925
+A1:B1        0.46370 0.2411  1.92 0.0544
+A1:D1        0.54873 0.5507  1.00 0.3190
+A1:E1        0.02503 0.2238  0.11 0.9109
+A1:F1        0.05476 0.7841  0.07 0.9443
+A1:G1        0.26642 0.2274  1.17 0.2413
+B1:D1        0.39565 0.5548  0.71 0.4758
+B1:E1        0.63904 0.2244  2.85 0.0044
+B1:F1        0.27186 0.5824  0.47 0.6407
+B1:G1        0.97343 0.5155  1.89 0.0590
+D1:E1       -0.42058 0.4911 -0.86 0.3917
+D1:F1        0.37588 0.1552  2.42 0.0154
+D1:G1        0.64085 0.5849  1.10 0.2732
+E1:F1        0.15256 0.7192  0.21 0.8320
+E1:G1        0.47018 0.2358  1.99 0.0462
+F1:G1       -0.05171 0.8287 -0.06 0.9502</code></pre>
+</div>
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>est_locdep <span class="ot">&lt;-</span> <span class="fu">cvamEstimate</span>(<span class="fu">c</span>(<span class="sc">~</span>X, what), fit_cvam_ld)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>est_locdep</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Estimates and SE's from EM, linearized
+~ X
+  X   prob     SE prob.lower prob.upper
+1 1 0.4443 0.0502     0.3493     0.5436
+2 2 0.5557 0.0502     0.4564     0.6507
+~ A | X
+  X A   prob     SE prob.lower prob.upper
+1 1 1 0.0050 0.0097     0.0001     0.1889
+2 1 2 0.9950 0.0097     0.8111     0.9999
+3 2 1 0.7905 0.0582     0.6545     0.8826
+4 2 2 0.2095 0.0582     0.1174     0.3455
+~ B | X
+  X B   prob     SE prob.lower prob.upper
+1 1 1 0.0226 0.0203     0.0038     0.1232
+2 1 2 0.9774 0.0203     0.8768     0.9962
+3 2 1 0.5794 0.0646     0.4503     0.6984
+4 2 2 0.4206 0.0646     0.3016     0.5497
+~ C | X
+  X C   prob     SE prob.lower prob.upper
+1 1 1 0.1445 0.0629     0.0587     0.3141
+2 1 2 0.8555 0.0629     0.6859     0.9413
+3 2 1 0.9957 0.0081     0.8501     0.9999
+4 2 2 0.0043 0.0081     0.0001     0.1499
+~ D | X
+  X D   prob     SE prob.lower prob.upper
+1 1 1 0.4202 0.0710     0.2905     0.5619
+2 1 2 0.5798 0.0710     0.4381     0.7095
+3 2 1 0.9720 0.0263     0.8391     0.9957
+4 2 2 0.0280 0.0263     0.0043     0.1609
+~ E | X
+  X E   prob     SE prob.lower prob.upper
+1 1 1 0.0048 0.0096     0.0001     0.1938
+2 1 2 0.9952 0.0096     0.8062     0.9999
+3 2 1 0.7146 0.0617     0.5805     0.8192
+4 2 2 0.2854 0.0617     0.1808     0.4195
+~ F | X
+  X F   prob     SE prob.lower prob.upper
+1 1 1 0.5242 0.0718     0.3852     0.6596
+2 1 2 0.4758 0.0718     0.3404     0.6148
+3 2 1 0.9948 0.0108     0.7542     0.9999
+4 2 2 0.0052 0.0108     0.0001     0.2458
+~ G | X
+  X G   prob     SE prob.lower prob.upper
+1 1 1 0.0046 0.0091     0.0001     0.1882
+2 1 2 0.9954 0.0091     0.8118     0.9999
+3 2 1 0.7905 0.0583     0.6543     0.8827
+4 2 2 0.2095 0.0583     0.1173     0.3457</code></pre>
+</div>
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fit_cvam, fit_cvam_ld, <span class="at">method =</span> <span class="st">"BIC"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Model 1: ~ X * (A + B + C + D + E + F + G)
+Model 2: ~ X + A + B + C + D + E + F + G + X:A + X:B + X:C + X:D + X:E + X:F + X:G + A:B + A:D + A:E + A:F + A:G + B:D + B:E + B:F + B:G + D:E + D:F + D:G + E:F + E:G + F:G
+  resid.df -2*loglik     BIC rank
+1      112   -255.37 -179.04    1
+2       97   -312.72 -164.83    2</code></pre>
+</div>
+</div>
+<p>The local dependence model fits better.</p>
+</section>
+<section id="extensions-to-the-basic-lc-model-using-loglinear-formulation" class="level2">
+<h2 class="anchored" data-anchor-id="extensions-to-the-basic-lc-model-using-loglinear-formulation">Extensions to the basic LC model using loglinear formulation</h2>
+<section id="including-covariates" class="level3">
+<h3 class="anchored" data-anchor-id="including-covariates">Including covariates</h3>
+</section>
+<section id="multiple-latent-variables" class="level3">
+<h3 class="anchored" data-anchor-id="multiple-latent-variables">Multiple latent variables</h3>
+</section>
+<section id="linear-effects-among-observed-and-latent-variables-dfactor-models" class="level3">
+<h3 class="anchored" data-anchor-id="linear-effects-among-observed-and-latent-variables-dfactor-models">Linear effects among observed and latent variables (DFactor models)</h3>
+</section>
+<section id="missing-not-at-random-mnar-unseen-data-dependent-models" class="level3">
+<h3 class="anchored" data-anchor-id="missing-not-at-random-mnar-unseen-data-dependent-models">Missing-not-at-random (MNAR) / Unseen data-dependent models</h3>
+</section>
+</section>
+<section id="doing-everything-by-hand" class="level2">
+<h2 class="anchored" data-anchor-id="doing-everything-by-hand">Doing everything by hand</h2>
+<div class="cell" data-hash="loglinear-LCA_cache/html/unnamed-chunk-6_c407fcc4e761a6412209d07fde1b582a">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">contrasts =</span> <span class="fu">rep</span>(<span class="st">"contr.sum"</span>, <span class="dv">2</span>))</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>varnames <span class="ot">&lt;-</span> LETTERS[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>sum_vars <span class="ot">&lt;-</span> <span class="fu">paste</span>(varnames, <span class="at">collapse =</span> <span class="st">"+"</span>)</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>formula <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">"Freq ~ X * (%s)"</span>, sum_vars)</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="co"># formula &lt;- sprintf("Freq ~ X * (%s) + B:E + G:A + D:F + B:G + G:D", sum_vars)</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>df_freq <span class="ot">&lt;-</span> carcinoma[, varnames] <span class="sc">|&gt;</span> <span class="fu">table</span>() <span class="sc">|&gt;</span> <span class="fu">as.data.frame</span>()</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">nrow</span>(df_freq)</span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>df_freq<span class="sc">$</span>patnum <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>n</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>df_expanded <span class="ot">&lt;-</span> <span class="fu">rbind</span>(df_freq, df_freq)</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>df_expanded<span class="sc">$</span>X <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>, <span class="at">each =</span> n)</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>post_start <span class="ot">&lt;-</span> <span class="fu">runif</span>(n)</span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>df_expanded<span class="sc">$</span>post <span class="ot">&lt;-</span> <span class="fu">c</span>(post_start, <span class="dv">1</span><span class="sc">-</span>post_start)</span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a><span class="fu">suppressWarnings</span>( <span class="co"># LCAs often have boundary values within classes</span></span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">200</span>) {</span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># M-step</span></span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Loglinear model</span></span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a>    fit_glm <span class="ot">&lt;-</span> <span class="fu">glm</span>(formula, </span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a>                   <span class="at">data =</span> df_expanded, <span class="at">weights =</span> post, </span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a>                   <span class="at">family =</span> <span class="st">"poisson"</span>)</span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a>    <span class="co"># E-step</span></span>
+<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a>    eta.X <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_glm) <span class="co"># Linear predictor given X</span></span>
+<span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a>    eta.X <span class="ot">&lt;-</span> <span class="fu">matrix</span>(eta.X, <span class="at">nrow =</span> n) <span class="sc">|&gt;</span> <span class="fu">t</span>()</span>
+<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a>    n.X <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">exp</span>(eta.X)) <span class="co"># Sample size given X </span></span>
+<span id="cb25-30"><a href="#cb25-30" aria-hidden="true" tabindex="-1"></a>    P_YX <span class="ot">&lt;-</span> <span class="fu">exp</span>(eta.X)<span class="sc">/</span>n.X <span class="co"># Probability of each pattern, joint (X, Y)</span></span>
+<span id="cb25-31"><a href="#cb25-31" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb25-32"><a href="#cb25-32" aria-hidden="true" tabindex="-1"></a>    P_Y <span class="ot">&lt;-</span> <span class="fu">colSums</span>(P_YX)</span>
+<span id="cb25-33"><a href="#cb25-33" aria-hidden="true" tabindex="-1"></a>    P_X.Y <span class="ot">&lt;-</span> <span class="fu">t</span>(P_YX) <span class="sc">/</span> P_Y <span class="co"># Posterior of X given Y</span></span>
+<span id="cb25-34"><a href="#cb25-34" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb25-35"><a href="#cb25-35" aria-hidden="true" tabindex="-1"></a>    df_expanded<span class="sc">$</span>post <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(P_X.Y)</span>
+<span id="cb25-36"><a href="#cb25-36" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb25-37"><a href="#cb25-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-38"><a href="#cb25-38" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_glm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = formula, family = "poisson", data = df_expanded, 
+    weights = post)
+
+Deviance Residuals: 
+     Min        1Q    Median        3Q       Max  
+-2.27223  -0.00021   0.00000   0.00006   2.32773  
+
+Coefficients:
+              Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)  -11.23256  966.27719  -0.012 0.990725    
+X             -9.51928 3997.51532  -0.002 0.998100    
+A1            -9.96178  966.27696  -0.010 0.991774    
+B1            -1.99081    0.50381  -3.952 7.77e-05 ***
+C1            -0.50214    0.14637  -3.431 0.000602 ***
+D1            -0.04095    0.12850  -0.319 0.749972    
+E1            -1.84747    0.44044  -4.195 2.73e-05 ***
+X:A1          11.05046  966.27699   0.011 0.990875    
+X:B1           2.31906    0.52293   4.435 9.22e-06 ***
+X:C1          11.51978 2854.03271   0.004 0.996779    
+X:D1          10.98989 2626.96297   0.004 0.996662    
+X:E1           2.51604    0.47035   5.349 8.83e-08 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 346.375  on 63  degrees of freedom
+Residual deviance:  31.418  on 52  degrees of freedom
+AIC: 98.345
+
+Number of Fisher Scoring iterations: 17</code></pre>
+</div>
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>P_X <span class="ot">&lt;-</span> <span class="fu">rowSums</span>(P_YX) <span class="co"># Prior</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>P_Y.X <span class="ot">&lt;-</span> P_YX<span class="sc">/</span>P_X    <span class="co"># Conditional of Y given X</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>P_Y.X_marginal <span class="ot">&lt;-</span> <span class="fu">sapply</span>(varnames, <span class="cf">function</span>(v) {</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">apply</span>(P_Y.X, <span class="dv">1</span>, <span class="cf">function</span>(x) <span class="fu">tapply</span>(x, df_freq[, v], sum))</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>P_Y.X_marginal <span class="sc">|&gt;</span> <span class="fu">round</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>         A     B     C    D     E
+[1,] 0.000 0.018 0.268 0.48 0.024
+[2,] 1.000 0.982 0.732 0.52 0.976
+[3,] 0.898 0.658 1.000 1.00 0.792
+[4,] 0.102 0.342 0.000 0.00 0.208</code></pre>
+</div>
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># fit_polca$probs |&gt; lapply(round, 3)</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="fu">sum</span>(df_freq<span class="sc">$</span>Freq)</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>expected <span class="ot">&lt;-</span> P_Y <span class="sc">*</span> N</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>observed <span class="ot">&lt;-</span> df_freq<span class="sc">$</span>Freq</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>loglik <span class="ot">&lt;-</span> <span class="fu">sum</span>(observed <span class="sc">*</span> <span class="fu">log</span>(P_Y))</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>deviance <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">2</span><span class="sc">*</span>loglik</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">length</span>(<span class="fu">coef</span>(fit_glm))</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>bic_deviance <span class="ot">&lt;-</span> deviance <span class="sc">+</span> p<span class="sc">*</span><span class="fu">log</span>(N)</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>bic_deviance</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 556.776</code></pre>
+</div>
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>X2 <span class="ot">&lt;-</span> <span class="fu">sum</span>((observed <span class="sc">-</span> expected)<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>expected)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>G2 <span class="ot">&lt;-</span> <span class="dv">2</span><span class="sc">*</span><span class="fu">sum</span>(observed <span class="sc">*</span> <span class="fu">log</span>(observed<span class="sc">/</span>expected), <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">Chisq=</span><span class="fu">c</span>(X2, fit_polca<span class="sc">$</span>Chisq), <span class="at">Gsqp=</span><span class="fu">c</span>(G2, fit_polca<span class="sc">$</span>Gsq), <span class="at">method=</span><span class="fu">c</span>(<span class="st">"loglinear"</span>, <span class="st">"poLCA"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>     Chisq     Gsqp    method
+1 27.48417 27.98881 loglinear
+2 92.64814 62.36543     poLCA</code></pre>
+</div>
+</div>
+<section id="alternative-r-implementation" class="level3">
+<h3 class="anchored" data-anchor-id="alternative-r-implementation">Alternative R implementation</h3>
+<p>This does appear to work as well. It requires more hand-holding than <code>cvam</code>.</p>
+<div class="cell" data-hash="loglinear-LCA_cache/html/unnamed-chunk-7_29000ac8c379184fe497d35e6d543946">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gllm)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">contrasts =</span> <span class="fu">rep</span>(<span class="st">"contr.treatment"</span>, <span class="dv">2</span>))</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>K <span class="ot">&lt;-</span> <span class="dv">3</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>df_expanded <span class="ot">&lt;-</span> <span class="fu">Reduce</span>(rbind, <span class="fu">replicate</span>(K, df_freq, <span class="at">simplify =</span> <span class="cn">FALSE</span>))</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>df_expanded<span class="sc">$</span>X <span class="ot">&lt;-</span> <span class="fu">factor</span>(<span class="fu">rep</span>(<span class="fu">seq</span>(K), <span class="at">each =</span> n))</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>formula_gllm <span class="ot">&lt;-</span> <span class="er">~</span> X <span class="sc">*</span> (A <span class="sc">+</span> B <span class="sc">+</span> C <span class="sc">+</span> D <span class="sc">+</span> E)</span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(formula_gllm, <span class="at">data =</span> df_expanded)</span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>s <span class="ot">&lt;-</span> <span class="fu">replicate</span>(K, <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(df_freq))</span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">emgllm</span>(<span class="at">y =</span> df_freq<span class="sc">$</span>Freq, <span class="at">s =</span> s, <span class="at">X =</span> X)</span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>res</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>$deviance
+[1] 28.16023
+
+$observed.values
+ [1] 34  2  7  3  0  0  0  0  0  0  0  1  0  0  0  0  2  0  9 10  0  1  0 18  0
+[26]  0  0  5  0  0  0 26
+
+$fitted.values
+ [1] 2.755131e+01 2.760242e+00 1.386034e+01 1.558156e+00 1.409730e-02
+ [6] 9.989355e-03 8.454280e-03 4.817056e-01 1.084389e-02 4.451493e-03
+[11] 5.989757e-03 1.892922e-01 3.258625e-05 9.464652e-03 1.519161e-03
+[16] 5.304967e-01 6.896560e+00 8.201101e-01 3.489994e+00 7.632804e+00
+[21] 4.566682e-03 3.656668e-01 6.030415e-02 2.047734e+01 3.121613e-03
+[26] 1.436234e-01 2.433266e-02 8.035526e+00 1.153064e-03 4.029088e-01
+[31] 6.455638e-02 2.258447e+01
+
+$full.table
+ [1] 2.755131e+01 2.757187e+00 1.385986e+01 1.387020e+00 1.407245e-02
+ [6] 1.408294e-03 7.079230e-03 7.084511e-04 1.083403e-02 1.084211e-03
+[11] 5.450125e-03 5.454192e-04 5.533722e-06 5.537851e-07 2.783773e-06
+[16] 2.785850e-07 6.896190e+00 6.901336e-01 3.469171e+00 3.471759e-01
+[21] 3.522383e-03 3.525011e-04 1.771956e-03 1.773278e-04 2.711796e-03
+[26] 2.713819e-04 1.364186e-03 1.365203e-04 1.385110e-06 1.386144e-07
+[31] 6.967882e-07 6.973081e-08 4.363061e-06 1.526518e-03 2.445662e-04
+[36] 8.556714e-02 1.226294e-05 4.290473e-03 6.873842e-04 2.404973e-01
+[41] 4.812064e-06 1.683612e-03 2.697345e-04 9.437287e-02 1.352492e-05
+[46] 4.732006e-03 7.581231e-04 2.652469e-01 1.857467e-04 6.498778e-02
+[51] 1.041181e-02 3.642812e+00 5.220646e-04 1.826564e-01 2.926371e-02
+[56] 1.023859e+01 2.048619e-04 7.167568e-02 1.148329e-02 4.017695e+00
+[61] 5.757904e-04 2.014536e-01 3.227524e-02 1.129224e+01 4.363061e-06
+[66] 1.526518e-03 2.445662e-04 8.556714e-02 1.226294e-05 4.290473e-03
+[71] 6.873842e-04 2.404973e-01 4.812064e-06 1.683612e-03 2.697345e-04
+[76] 9.437287e-02 1.352492e-05 4.732006e-03 7.581231e-04 2.652469e-01
+[81] 1.857467e-04 6.498778e-02 1.041181e-02 3.642812e+00 5.220646e-04
+[86] 1.826564e-01 2.926371e-02 1.023859e+01 2.048619e-04 7.167568e-02
+[91] 1.148329e-02 4.017695e+00 5.757904e-04 2.014536e-01 3.227524e-02
+[96] 1.129224e+01</code></pre>
+</div>
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(res, <span class="fu">sum</span>((fitted.values <span class="sc">-</span> observed.values)<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>fitted.values))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 28.49572</code></pre>
+</div>
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(res, <span class="dv">2</span><span class="sc">*</span><span class="fu">sum</span>(observed.values <span class="sc">*</span> <span class="fu">log</span>(observed.values<span class="sc">/</span>fitted.values), <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 28.16023</code></pre>
+</div>
+</div>
+
+
+<!-- -->
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb39" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Loglinear LCA"</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="an">editor:</span><span class="co"> visual</span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "DL Oberski"</span></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: true</span></span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a><span class="co">    code-summary: "Show the code"</span></span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a><span class="co">    theme: zephyr</span></span>
+<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
+<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a><span class="an">execute:</span></span>
+<span id="cb39-13"><a href="#cb39-13" aria-hidden="true" tabindex="-1"></a><span class="co">  cache: true</span></span>
+<span id="cb39-14"><a href="#cb39-14" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb39-15"><a href="#cb39-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-16"><a href="#cb39-16" aria-hidden="true" tabindex="-1"></a><span class="fu"># Loglinear formulation of LCA</span></span>
+<span id="cb39-17"><a href="#cb39-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-18"><a href="#cb39-18" aria-hidden="true" tabindex="-1"></a>The loglinear formulation of LCA is very powerful. It only works for categorical data, but, in addition to the "plain vanilla" kind of locally independent LCA, it allows for:</span>
+<span id="cb39-19"><a href="#cb39-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-20"><a href="#cb39-20" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Built-in handling of missing data (everything is a missing data problem);</span>
+<span id="cb39-21"><a href="#cb39-21" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>NMAR ("unseen data-dependent") models;</span>
+<span id="cb39-22"><a href="#cb39-22" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Multiple latent class variables, unlocking arbitrary modelling with latent variables, i.e. "categorical SEM";</span>
+<span id="cb39-23"><a href="#cb39-23" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>"Linear by linear" and "linear by nominal" effects, making for more parsimonious models, unlocking:</span>
+<span id="cb39-24"><a href="#cb39-24" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Discretized, "nonparametric" versions of IRT models ("DFactor models" in Latent Gold)</span>
+<span id="cb39-25"><a href="#cb39-25" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Covariates/concomitant variables, including "measurement invariance" models;</span>
+<span id="cb39-26"><a href="#cb39-26" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Facilities for complex sampling designs, i.e. weighting, clustering, and stratification;</span>
+<span id="cb39-27"><a href="#cb39-27" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>and more.</span>
+<span id="cb39-28"><a href="#cb39-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-29"><a href="#cb39-29" aria-hidden="true" tabindex="-1"></a>The largest drawback is that, as implemented in most software (including the excellent <span class="in">`cvam`</span> package in <span class="in">`R`</span>), it is extremely intensive on computer memory. This means that most models that run easily in other software will likely refuse to run on your laptop, giving an "out of memory" error.</span>
+<span id="cb39-30"><a href="#cb39-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-31"><a href="#cb39-31" aria-hidden="true" tabindex="-1"></a>The loglinear formulation of LCA is the basis of the powerful Latent Gold software, as well as its predecessor, the still-popular LEM program (https://jeroenvermunt.nl/). Latent Gold uses many optimizations, which mostly allow it to circumvent the "small models only" problem. Here, we will use <span class="in">`cvam`</span>, whose implementation is very similar to LEM.</span>
+<span id="cb39-32"><a href="#cb39-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-33"><a href="#cb39-33" aria-hidden="true" tabindex="-1"></a>To demonstrate the uses of loglinear LCA, we use the <span class="in">`carcinoma`</span> data from the <span class="in">`poLCA`</span> package.</span>
+<span id="cb39-34"><a href="#cb39-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-35"><a href="#cb39-35" aria-hidden="true" tabindex="-1"></a><span class="fu">## Simple analysis using `poLCA`</span></span>
+<span id="cb39-36"><a href="#cb39-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-39"><a href="#cb39-39" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-40"><a href="#cb39-40" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb39-41"><a href="#cb39-41" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb39-42"><a href="#cb39-42" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(poLCA)</span>
+<span id="cb39-43"><a href="#cb39-43" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(poLCA.extras)</span>
+<span id="cb39-44"><a href="#cb39-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-45"><a href="#cb39-45" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">202303</span>)</span>
+<span id="cb39-46"><a href="#cb39-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-47"><a href="#cb39-47" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(carcinoma)</span>
+<span id="cb39-48"><a href="#cb39-48" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(carcinoma <span class="sc">%&gt;%</span> <span class="fu">sample_n</span>(<span class="dv">10</span>))</span>
+<span id="cb39-49"><a href="#cb39-49" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-50"><a href="#cb39-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-53"><a href="#cb39-53" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-54"><a href="#cb39-54" aria-hidden="true" tabindex="-1"></a>f_carcinoma <span class="ot">&lt;-</span> <span class="fu">cbind</span>(A, B, C, D, E, F, G) <span class="sc">~</span> <span class="dv">1</span></span>
+<span id="cb39-55"><a href="#cb39-55" aria-hidden="true" tabindex="-1"></a>fit_polca <span class="ot">&lt;-</span> <span class="fu">poLCA</span>(f_carcinoma, </span>
+<span id="cb39-56"><a href="#cb39-56" aria-hidden="true" tabindex="-1"></a>                   <span class="at">nclass =</span> <span class="dv">2</span>,</span>
+<span id="cb39-57"><a href="#cb39-57" aria-hidden="true" tabindex="-1"></a>                   <span class="at">data =</span> carcinoma, </span>
+<span id="cb39-58"><a href="#cb39-58" aria-hidden="true" tabindex="-1"></a>                   <span class="at">nrep =</span> <span class="dv">10</span>,</span>
+<span id="cb39-59"><a href="#cb39-59" aria-hidden="true" tabindex="-1"></a>                   <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb39-60"><a href="#cb39-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-61"><a href="#cb39-61" aria-hidden="true" tabindex="-1"></a>fit_polca</span>
+<span id="cb39-62"><a href="#cb39-62" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-63"><a href="#cb39-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-64"><a href="#cb39-64" aria-hidden="true" tabindex="-1"></a>From the poLCA model, using the bivariate residual (BVR) functionality in the <span class="in">`poLCA.extras`</span> package, we can see that there are some considerable local dependencies.</span>
+<span id="cb39-65"><a href="#cb39-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-68"><a href="#cb39-68" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-69"><a href="#cb39-69" aria-hidden="true" tabindex="-1"></a><span class="fu">bvr</span>(fit_polca) <span class="sc">|&gt;</span> <span class="fu">round</span>(<span class="dv">1</span>)</span>
+<span id="cb39-70"><a href="#cb39-70" aria-hidden="true" tabindex="-1"></a><span class="fu">bootstrap_bvr_pvals</span>(f_carcinoma, </span>
+<span id="cb39-71"><a href="#cb39-71" aria-hidden="true" tabindex="-1"></a>                    <span class="at">fit_polca =</span> fit_polca, </span>
+<span id="cb39-72"><a href="#cb39-72" aria-hidden="true" tabindex="-1"></a>                    <span class="at">data =</span> carcinoma, <span class="at">R =</span> <span class="dv">200</span>)</span>
+<span id="cb39-73"><a href="#cb39-73" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-74"><a href="#cb39-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-75"><a href="#cb39-75" aria-hidden="true" tabindex="-1"></a><span class="fu">## Simple and locally dependent LCA using `cvam`</span></span>
+<span id="cb39-76"><a href="#cb39-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-79"><a href="#cb39-79" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-80"><a href="#cb39-80" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(cvam)</span>
+<span id="cb39-81"><a href="#cb39-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-82"><a href="#cb39-82" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">contrasts =</span> <span class="fu">rep</span>(<span class="st">"contr.sum"</span>, <span class="dv">2</span>))</span>
+<span id="cb39-83"><a href="#cb39-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-84"><a href="#cb39-84" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> carcinoma <span class="sc">%&gt;%</span> <span class="fu">mutate_all</span>(as.factor)</span>
+<span id="cb39-85"><a href="#cb39-85" aria-hidden="true" tabindex="-1"></a>df_freq <span class="ot">&lt;-</span> <span class="fu">table</span>(dat, <span class="at">useNA =</span> <span class="st">"ifany"</span>) <span class="sc">|&gt;</span> <span class="fu">as.data.frame</span>()</span>
+<span id="cb39-86"><a href="#cb39-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-87"><a href="#cb39-87" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a new variable that is completely missing (and has 2 cats)</span></span>
+<span id="cb39-88"><a href="#cb39-88" aria-hidden="true" tabindex="-1"></a>df_freq<span class="sc">$</span>X <span class="ot">&lt;-</span> <span class="fu">latentFactor</span>(<span class="fu">NROW</span>(df_freq), <span class="dv">2</span>)</span>
+<span id="cb39-89"><a href="#cb39-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-90"><a href="#cb39-90" aria-hidden="true" tabindex="-1"></a><span class="co"># Create formula</span></span>
+<span id="cb39-91"><a href="#cb39-91" aria-hidden="true" tabindex="-1"></a>formula <span class="ot">&lt;-</span> </span>
+<span id="cb39-92"><a href="#cb39-92" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste</span>(<span class="fu">names</span>(df_freq)[<span class="sc">!</span><span class="fu">names</span>(df_freq) <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Freq"</span>, <span class="st">"X"</span>)],</span>
+<span id="cb39-93"><a href="#cb39-93" aria-hidden="true" tabindex="-1"></a>        <span class="at">collapse =</span> <span class="st">" + "</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb39-94"><a href="#cb39-94" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sprintf</span>(<span class="st">"~ X * (%s)"</span>, .) <span class="sc">%&gt;%</span></span>
+<span id="cb39-95"><a href="#cb39-95" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.formula</span>()</span>
+<span id="cb39-96"><a href="#cb39-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-97"><a href="#cb39-97" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(</span>
+<span id="cb39-98"><a href="#cb39-98" aria-hidden="true" tabindex="-1"></a>  fit_cvam <span class="ot">&lt;-</span> <span class="fu">cvam</span>(formula, <span class="at">data =</span> df_freq,</span>
+<span id="cb39-99"><a href="#cb39-99" aria-hidden="true" tabindex="-1"></a>                   <span class="at">freq =</span> Freq,</span>
+<span id="cb39-100"><a href="#cb39-100" aria-hidden="true" tabindex="-1"></a>                   <span class="at">control =</span> <span class="fu">list</span>(<span class="at">startValJitter =</span> <span class="fl">0.1</span>)</span>
+<span id="cb39-101"><a href="#cb39-101" aria-hidden="true" tabindex="-1"></a>))</span>
+<span id="cb39-102"><a href="#cb39-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-103"><a href="#cb39-103" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_cvam)</span>
+<span id="cb39-104"><a href="#cb39-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-105"><a href="#cb39-105" aria-hidden="true" tabindex="-1"></a>what <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"~"</span>, LETTERS[<span class="dv">1</span><span class="sc">:</span><span class="dv">7</span>], <span class="st">"|X"</span>) <span class="sc">|&gt;</span> <span class="fu">sapply</span>(as.formula)</span>
+<span id="cb39-106"><a href="#cb39-106" aria-hidden="true" tabindex="-1"></a>est_indep <span class="ot">&lt;-</span> <span class="fu">cvamEstimate</span>(<span class="fu">c</span>(<span class="sc">~</span>X, what), fit_cvam)</span>
+<span id="cb39-107"><a href="#cb39-107" aria-hidden="true" tabindex="-1"></a>est_indep</span>
+<span id="cb39-108"><a href="#cb39-108" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-109"><a href="#cb39-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-110"><a href="#cb39-110" aria-hidden="true" tabindex="-1"></a>(Note that the Hessian-based se's cannot be trusted. We can look at the estimated se's in the marginal probability tables above, or use <span class="in">`cvam`</span>'s MCMC option to obtain standard errors on the loglinear parmeters.)</span>
+<span id="cb39-111"><a href="#cb39-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-112"><a href="#cb39-112" aria-hidden="true" tabindex="-1"></a>Now we update the model with the local dependences, held equal across classes.</span>
+<span id="cb39-113"><a href="#cb39-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-116"><a href="#cb39-116" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-117"><a href="#cb39-117" aria-hidden="true" tabindex="-1"></a><span class="co"># formula_ld &lt;- update(formula, ~ . + D:F + A:G + B:E)</span></span>
+<span id="cb39-118"><a href="#cb39-118" aria-hidden="true" tabindex="-1"></a>formula_ld <span class="ot">&lt;-</span> <span class="fu">update</span>(formula, <span class="sc">~</span> . <span class="sc">+</span> (A<span class="sc">+</span>B<span class="sc">+</span>D<span class="sc">+</span>E<span class="sc">+</span>F<span class="sc">+</span>G)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb39-119"><a href="#cb39-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-120"><a href="#cb39-120" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(</span>
+<span id="cb39-121"><a href="#cb39-121" aria-hidden="true" tabindex="-1"></a>  fit_cvam_ld <span class="ot">&lt;-</span> </span>
+<span id="cb39-122"><a href="#cb39-122" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cvam</span>(formula_ld, <span class="at">data =</span> df_freq, <span class="at">freq =</span> Freq,</span>
+<span id="cb39-123"><a href="#cb39-123" aria-hidden="true" tabindex="-1"></a>         <span class="at">control =</span> <span class="fu">list</span>(<span class="at">startValJitter =</span> <span class="fl">0.05</span>, <span class="at">iterMaxEM =</span> <span class="dv">1000</span>),</span>
+<span id="cb39-124"><a href="#cb39-124" aria-hidden="true" tabindex="-1"></a>         <span class="at">prior =</span> cvam<span class="sc">::</span><span class="fu">cvamPrior</span>(<span class="at">ridge =</span> <span class="fl">0.1</span>)</span>
+<span id="cb39-125"><a href="#cb39-125" aria-hidden="true" tabindex="-1"></a>))</span>
+<span id="cb39-126"><a href="#cb39-126" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-127"><a href="#cb39-127" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_cvam_ld)</span>
+<span id="cb39-128"><a href="#cb39-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-129"><a href="#cb39-129" aria-hidden="true" tabindex="-1"></a>est_locdep <span class="ot">&lt;-</span> <span class="fu">cvamEstimate</span>(<span class="fu">c</span>(<span class="sc">~</span>X, what), fit_cvam_ld)</span>
+<span id="cb39-130"><a href="#cb39-130" aria-hidden="true" tabindex="-1"></a>est_locdep</span>
+<span id="cb39-131"><a href="#cb39-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-132"><a href="#cb39-132" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fit_cvam, fit_cvam_ld, <span class="at">method =</span> <span class="st">"BIC"</span>)</span>
+<span id="cb39-133"><a href="#cb39-133" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-134"><a href="#cb39-134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-135"><a href="#cb39-135" aria-hidden="true" tabindex="-1"></a>The local dependence model fits better.</span>
+<span id="cb39-136"><a href="#cb39-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-137"><a href="#cb39-137" aria-hidden="true" tabindex="-1"></a><span class="fu">## Extensions to the basic LC model using loglinear formulation</span></span>
+<span id="cb39-138"><a href="#cb39-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-139"><a href="#cb39-139" aria-hidden="true" tabindex="-1"></a><span class="fu">### Including covariates</span></span>
+<span id="cb39-140"><a href="#cb39-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-141"><a href="#cb39-141" aria-hidden="true" tabindex="-1"></a><span class="fu">### Multiple latent variables</span></span>
+<span id="cb39-142"><a href="#cb39-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-143"><a href="#cb39-143" aria-hidden="true" tabindex="-1"></a><span class="fu">### Linear effects among observed and latent variables (DFactor models)</span></span>
+<span id="cb39-144"><a href="#cb39-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-145"><a href="#cb39-145" aria-hidden="true" tabindex="-1"></a><span class="fu">### Missing-not-at-random (MNAR) / Unseen data-dependent models</span></span>
+<span id="cb39-146"><a href="#cb39-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-147"><a href="#cb39-147" aria-hidden="true" tabindex="-1"></a><span class="fu">## Doing everything by hand</span></span>
+<span id="cb39-148"><a href="#cb39-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-151"><a href="#cb39-151" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-152"><a href="#cb39-152" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb39-153"><a href="#cb39-153" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-154"><a href="#cb39-154" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">contrasts =</span> <span class="fu">rep</span>(<span class="st">"contr.sum"</span>, <span class="dv">2</span>))</span>
+<span id="cb39-155"><a href="#cb39-155" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-156"><a href="#cb39-156" aria-hidden="true" tabindex="-1"></a>varnames <span class="ot">&lt;-</span> LETTERS[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]</span>
+<span id="cb39-157"><a href="#cb39-157" aria-hidden="true" tabindex="-1"></a>sum_vars <span class="ot">&lt;-</span> <span class="fu">paste</span>(varnames, <span class="at">collapse =</span> <span class="st">"+"</span>)</span>
+<span id="cb39-158"><a href="#cb39-158" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-159"><a href="#cb39-159" aria-hidden="true" tabindex="-1"></a>formula <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">"Freq ~ X * (%s)"</span>, sum_vars)</span>
+<span id="cb39-160"><a href="#cb39-160" aria-hidden="true" tabindex="-1"></a><span class="co"># formula &lt;- sprintf("Freq ~ X * (%s) + B:E + G:A + D:F + B:G + G:D", sum_vars)</span></span>
+<span id="cb39-161"><a href="#cb39-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-162"><a href="#cb39-162" aria-hidden="true" tabindex="-1"></a>df_freq <span class="ot">&lt;-</span> carcinoma[, varnames] <span class="sc">|&gt;</span> <span class="fu">table</span>() <span class="sc">|&gt;</span> <span class="fu">as.data.frame</span>()</span>
+<span id="cb39-163"><a href="#cb39-163" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">nrow</span>(df_freq)</span>
+<span id="cb39-164"><a href="#cb39-164" aria-hidden="true" tabindex="-1"></a>df_freq<span class="sc">$</span>patnum <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>n</span>
+<span id="cb39-165"><a href="#cb39-165" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-166"><a href="#cb39-166" aria-hidden="true" tabindex="-1"></a>df_expanded <span class="ot">&lt;-</span> <span class="fu">rbind</span>(df_freq, df_freq)</span>
+<span id="cb39-167"><a href="#cb39-167" aria-hidden="true" tabindex="-1"></a>df_expanded<span class="sc">$</span>X <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>, <span class="at">each =</span> n)</span>
+<span id="cb39-168"><a href="#cb39-168" aria-hidden="true" tabindex="-1"></a>post_start <span class="ot">&lt;-</span> <span class="fu">runif</span>(n)</span>
+<span id="cb39-169"><a href="#cb39-169" aria-hidden="true" tabindex="-1"></a>df_expanded<span class="sc">$</span>post <span class="ot">&lt;-</span> <span class="fu">c</span>(post_start, <span class="dv">1</span><span class="sc">-</span>post_start)</span>
+<span id="cb39-170"><a href="#cb39-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-171"><a href="#cb39-171" aria-hidden="true" tabindex="-1"></a><span class="fu">suppressWarnings</span>( <span class="co"># LCAs often have boundary values within classes</span></span>
+<span id="cb39-172"><a href="#cb39-172" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">200</span>) {</span>
+<span id="cb39-173"><a href="#cb39-173" aria-hidden="true" tabindex="-1"></a>    <span class="co"># M-step</span></span>
+<span id="cb39-174"><a href="#cb39-174" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Loglinear model</span></span>
+<span id="cb39-175"><a href="#cb39-175" aria-hidden="true" tabindex="-1"></a>    fit_glm <span class="ot">&lt;-</span> <span class="fu">glm</span>(formula, </span>
+<span id="cb39-176"><a href="#cb39-176" aria-hidden="true" tabindex="-1"></a>                   <span class="at">data =</span> df_expanded, <span class="at">weights =</span> post, </span>
+<span id="cb39-177"><a href="#cb39-177" aria-hidden="true" tabindex="-1"></a>                   <span class="at">family =</span> <span class="st">"poisson"</span>)</span>
+<span id="cb39-178"><a href="#cb39-178" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb39-179"><a href="#cb39-179" aria-hidden="true" tabindex="-1"></a>    <span class="co"># E-step</span></span>
+<span id="cb39-180"><a href="#cb39-180" aria-hidden="true" tabindex="-1"></a>    eta.X <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_glm) <span class="co"># Linear predictor given X</span></span>
+<span id="cb39-181"><a href="#cb39-181" aria-hidden="true" tabindex="-1"></a>    eta.X <span class="ot">&lt;-</span> <span class="fu">matrix</span>(eta.X, <span class="at">nrow =</span> n) <span class="sc">|&gt;</span> <span class="fu">t</span>()</span>
+<span id="cb39-182"><a href="#cb39-182" aria-hidden="true" tabindex="-1"></a>    n.X <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">exp</span>(eta.X)) <span class="co"># Sample size given X </span></span>
+<span id="cb39-183"><a href="#cb39-183" aria-hidden="true" tabindex="-1"></a>    P_YX <span class="ot">&lt;-</span> <span class="fu">exp</span>(eta.X)<span class="sc">/</span>n.X <span class="co"># Probability of each pattern, joint (X, Y)</span></span>
+<span id="cb39-184"><a href="#cb39-184" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb39-185"><a href="#cb39-185" aria-hidden="true" tabindex="-1"></a>    P_Y <span class="ot">&lt;-</span> <span class="fu">colSums</span>(P_YX)</span>
+<span id="cb39-186"><a href="#cb39-186" aria-hidden="true" tabindex="-1"></a>    P_X.Y <span class="ot">&lt;-</span> <span class="fu">t</span>(P_YX) <span class="sc">/</span> P_Y <span class="co"># Posterior of X given Y</span></span>
+<span id="cb39-187"><a href="#cb39-187" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb39-188"><a href="#cb39-188" aria-hidden="true" tabindex="-1"></a>    df_expanded<span class="sc">$</span>post <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(P_X.Y)</span>
+<span id="cb39-189"><a href="#cb39-189" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb39-190"><a href="#cb39-190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-191"><a href="#cb39-191" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_glm)</span>
+<span id="cb39-192"><a href="#cb39-192" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-193"><a href="#cb39-193" aria-hidden="true" tabindex="-1"></a>P_X <span class="ot">&lt;-</span> <span class="fu">rowSums</span>(P_YX) <span class="co"># Prior</span></span>
+<span id="cb39-194"><a href="#cb39-194" aria-hidden="true" tabindex="-1"></a>P_Y.X <span class="ot">&lt;-</span> P_YX<span class="sc">/</span>P_X    <span class="co"># Conditional of Y given X</span></span>
+<span id="cb39-195"><a href="#cb39-195" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-196"><a href="#cb39-196" aria-hidden="true" tabindex="-1"></a>P_Y.X_marginal <span class="ot">&lt;-</span> <span class="fu">sapply</span>(varnames, <span class="cf">function</span>(v) {</span>
+<span id="cb39-197"><a href="#cb39-197" aria-hidden="true" tabindex="-1"></a>  <span class="fu">apply</span>(P_Y.X, <span class="dv">1</span>, <span class="cf">function</span>(x) <span class="fu">tapply</span>(x, df_freq[, v], sum))</span>
+<span id="cb39-198"><a href="#cb39-198" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb39-199"><a href="#cb39-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-200"><a href="#cb39-200" aria-hidden="true" tabindex="-1"></a>P_Y.X_marginal <span class="sc">|&gt;</span> <span class="fu">round</span>(<span class="dv">3</span>)</span>
+<span id="cb39-201"><a href="#cb39-201" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-202"><a href="#cb39-202" aria-hidden="true" tabindex="-1"></a><span class="co"># fit_polca$probs |&gt; lapply(round, 3)</span></span>
+<span id="cb39-203"><a href="#cb39-203" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-204"><a href="#cb39-204" aria-hidden="true" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="fu">sum</span>(df_freq<span class="sc">$</span>Freq)</span>
+<span id="cb39-205"><a href="#cb39-205" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-206"><a href="#cb39-206" aria-hidden="true" tabindex="-1"></a>expected <span class="ot">&lt;-</span> P_Y <span class="sc">*</span> N</span>
+<span id="cb39-207"><a href="#cb39-207" aria-hidden="true" tabindex="-1"></a>observed <span class="ot">&lt;-</span> df_freq<span class="sc">$</span>Freq</span>
+<span id="cb39-208"><a href="#cb39-208" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-209"><a href="#cb39-209" aria-hidden="true" tabindex="-1"></a>loglik <span class="ot">&lt;-</span> <span class="fu">sum</span>(observed <span class="sc">*</span> <span class="fu">log</span>(P_Y))</span>
+<span id="cb39-210"><a href="#cb39-210" aria-hidden="true" tabindex="-1"></a>deviance <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">2</span><span class="sc">*</span>loglik</span>
+<span id="cb39-211"><a href="#cb39-211" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">length</span>(<span class="fu">coef</span>(fit_glm))</span>
+<span id="cb39-212"><a href="#cb39-212" aria-hidden="true" tabindex="-1"></a>bic_deviance <span class="ot">&lt;-</span> deviance <span class="sc">+</span> p<span class="sc">*</span><span class="fu">log</span>(N)</span>
+<span id="cb39-213"><a href="#cb39-213" aria-hidden="true" tabindex="-1"></a>bic_deviance</span>
+<span id="cb39-214"><a href="#cb39-214" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-215"><a href="#cb39-215" aria-hidden="true" tabindex="-1"></a>X2 <span class="ot">&lt;-</span> <span class="fu">sum</span>((observed <span class="sc">-</span> expected)<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>expected)</span>
+<span id="cb39-216"><a href="#cb39-216" aria-hidden="true" tabindex="-1"></a>G2 <span class="ot">&lt;-</span> <span class="dv">2</span><span class="sc">*</span><span class="fu">sum</span>(observed <span class="sc">*</span> <span class="fu">log</span>(observed<span class="sc">/</span>expected), <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb39-217"><a href="#cb39-217" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-218"><a href="#cb39-218" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">Chisq=</span><span class="fu">c</span>(X2, fit_polca<span class="sc">$</span>Chisq), <span class="at">Gsqp=</span><span class="fu">c</span>(G2, fit_polca<span class="sc">$</span>Gsq), <span class="at">method=</span><span class="fu">c</span>(<span class="st">"loglinear"</span>, <span class="st">"poLCA"</span>))</span>
+<span id="cb39-219"><a href="#cb39-219" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-220"><a href="#cb39-220" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-221"><a href="#cb39-221" aria-hidden="true" tabindex="-1"></a><span class="fu">### Alternative R implementation</span></span>
+<span id="cb39-222"><a href="#cb39-222" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-223"><a href="#cb39-223" aria-hidden="true" tabindex="-1"></a>This does appear to work as well. It requires more hand-holding than <span class="in">`cvam`</span>.</span>
+<span id="cb39-224"><a href="#cb39-224" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-227"><a href="#cb39-227" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-228"><a href="#cb39-228" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gllm)</span>
+<span id="cb39-229"><a href="#cb39-229" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-230"><a href="#cb39-230" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">contrasts =</span> <span class="fu">rep</span>(<span class="st">"contr.treatment"</span>, <span class="dv">2</span>))</span>
+<span id="cb39-231"><a href="#cb39-231" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-232"><a href="#cb39-232" aria-hidden="true" tabindex="-1"></a>K <span class="ot">&lt;-</span> <span class="dv">3</span></span>
+<span id="cb39-233"><a href="#cb39-233" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-234"><a href="#cb39-234" aria-hidden="true" tabindex="-1"></a>df_expanded <span class="ot">&lt;-</span> <span class="fu">Reduce</span>(rbind, <span class="fu">replicate</span>(K, df_freq, <span class="at">simplify =</span> <span class="cn">FALSE</span>))</span>
+<span id="cb39-235"><a href="#cb39-235" aria-hidden="true" tabindex="-1"></a>df_expanded<span class="sc">$</span>X <span class="ot">&lt;-</span> <span class="fu">factor</span>(<span class="fu">rep</span>(<span class="fu">seq</span>(K), <span class="at">each =</span> n))</span>
+<span id="cb39-236"><a href="#cb39-236" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-237"><a href="#cb39-237" aria-hidden="true" tabindex="-1"></a>formula_gllm <span class="ot">&lt;-</span> <span class="er">~</span> X <span class="sc">*</span> (A <span class="sc">+</span> B <span class="sc">+</span> C <span class="sc">+</span> D <span class="sc">+</span> E)</span>
+<span id="cb39-238"><a href="#cb39-238" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(formula_gllm, <span class="at">data =</span> df_expanded)</span>
+<span id="cb39-239"><a href="#cb39-239" aria-hidden="true" tabindex="-1"></a>s <span class="ot">&lt;-</span> <span class="fu">replicate</span>(K, <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(df_freq))</span>
+<span id="cb39-240"><a href="#cb39-240" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-241"><a href="#cb39-241" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">emgllm</span>(<span class="at">y =</span> df_freq<span class="sc">$</span>Freq, <span class="at">s =</span> s, <span class="at">X =</span> X)</span>
+<span id="cb39-242"><a href="#cb39-242" aria-hidden="true" tabindex="-1"></a>res</span>
+<span id="cb39-243"><a href="#cb39-243" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-244"><a href="#cb39-244" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(res, <span class="fu">sum</span>((fitted.values <span class="sc">-</span> observed.values)<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>fitted.values))</span>
+<span id="cb39-245"><a href="#cb39-245" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(res, <span class="dv">2</span><span class="sc">*</span><span class="fu">sum</span>(observed.values <span class="sc">*</span> <span class="fu">log</span>(observed.values<span class="sc">/</span>fitted.values), <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb39-246"><a href="#cb39-246" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-247"><a href="#cb39-247" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+</body></html>

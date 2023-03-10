@@ -308,8 +308,7 @@ c(Comp.1.avg=sum(P_B_given_XC[[1]][, 2] * P_C),
 
 ### Loglinear formulation
 
-
-We can use the excellent `cvam` package to create a loglinear latent class model. This allows for full flexibility, including the addition of local dependence parameters that do not require an arbitrary choice of "dependent" observed variable. 
+We can use the excellent `cvam` package to create a loglinear latent class model. This allows for full flexibility, including the addition of local dependence parameters that do not require an arbitrary choice of "dependent" observed variable.
 
 ```{mermaid}
 flowchart TD
@@ -320,9 +319,9 @@ flowchart TD
   C <--> B
 ```
 
-This is probably the best solution, if you can make it work. It only tends to work for smaller examples since `cvam` has trouble with larger complete data cross-tables. 
+This is probably the best solution, if you can make it work. It only tends to work for smaller examples since `cvam` has trouble with larger complete data cross-tables.
 
-It works great for the small `uebersax` example. 
+It works great for the small `uebersax` example.
 
 ```{r}
 
@@ -373,4 +372,4 @@ est_locdep
 anova(fit_cvam, fit_cvam_ld)
 ```
 
-The local dependence model fits better, but the estimated (conditional) probabilities do not change much. 
+The local dependence model fits better, but the estimated (conditional) probabilities do not change much.

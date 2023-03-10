@@ -15,24 +15,22 @@ execute:
 
 # Loglinear formulation of LCA
 
-
 The loglinear formulation of LCA is very powerful. It only works for categorical data, but, in addition to the "plain vanilla" kind of locally independent LCA, it allows for:
 
- - Built-in handling of missing data (everything is a missing data problem);
- - NMAR ("unseen data-dependent") models;
- - Multiple latent class variables, unlocking arbitrary modelling with latent variables, i.e. "categorical SEM";
- - "Linear by linear" and "linear by nominal" effects, making for more parsimonious models, unlocking:
- - Discretized, "nonparametric" versions of IRT models ("DFactor models" in Latent Gold)
- - Covariates/concomitant variables, including "measurement invariance" models;
- - Facilities for complex sampling designs, i.e. weighting, clustering, and stratification;
- - and more.
+-   Built-in handling of missing data (everything is a missing data problem);
+-   NMAR ("unseen data-dependent") models;
+-   Multiple latent class variables, unlocking arbitrary modelling with latent variables, i.e. "categorical SEM";
+-   "Linear by linear" and "linear by nominal" effects, making for more parsimonious models, unlocking:
+-   Discretized, "nonparametric" versions of IRT models ("DFactor models" in Latent Gold)
+-   Covariates/concomitant variables, including "measurement invariance" models;
+-   Facilities for complex sampling designs, i.e. weighting, clustering, and stratification;
+-   and more.
 
-The largest drawback is that, as implemented in most software (including the excellent `cvam` package in `R`), it is extremely intensive on computer memory. This means that most models that run easily in other software will likely refuse to run on your laptop, giving an "out of memory" error. 
+The largest drawback is that, as implemented in most software (including the excellent `cvam` package in `R`), it is extremely intensive on computer memory. This means that most models that run easily in other software will likely refuse to run on your laptop, giving an "out of memory" error.
 
 The loglinear formulation of LCA is the basis of the powerful Latent Gold software, as well as its predecessor, the still-popular LEM program (https://jeroenvermunt.nl/). Latent Gold uses many optimizations, which mostly allow it to circumvent the "small models only" problem. Here, we will use `cvam`, whose implementation is very similar to LEM.
 
 To demonstrate the uses of loglinear LCA, we use the `carcinoma` data from the `poLCA` package.
-
 
 ## Simple analysis using `poLCA`
 
@@ -59,7 +57,7 @@ fit_polca <- poLCA(f_carcinoma,
 fit_polca
 ```
 
-From the poLCA model, using the bivariate residual (BVR) functionality in the `poLCA.extras` package, we can see that there are some considerable local dependencies. 
+From the poLCA model, using the bivariate residual (BVR) functionality in the `poLCA.extras` package, we can see that there are some considerable local dependencies.
 
 ```{r}
 bvr(fit_polca) |> round(1)
@@ -67,6 +65,7 @@ bootstrap_bvr_pvals(f_carcinoma,
                     fit_polca = fit_polca, 
                     data = carcinoma, R = 200)
 ```
+
 ## Simple and locally dependent LCA using `cvam`
 
 ```{r}
@@ -99,7 +98,6 @@ what <- paste0("~", LETTERS[1:7], "|X") |> sapply(as.formula)
 est_indep <- cvamEstimate(c(~X, what), fit_cvam)
 est_indep
 ```
-
 
 (Note that the Hessian-based se's cannot be trusted. We can look at the estimated se's in the marginal probability tables above, or use `cvam`'s MCMC option to obtain standard errors on the loglinear parmeters.)
 
@@ -137,7 +135,6 @@ The local dependence model fits better.
 ### Missing-not-at-random (MNAR) / Unseen data-dependent models
 
 ## Doing everything by hand
-
 
 ```{r}
 #| message: false
@@ -209,11 +206,9 @@ G2 <- 2*sum(observed * log(observed/expected), na.rm = TRUE)
 data.frame(Chisq=c(X2, fit_polca$Chisq), Gsqp=c(G2, fit_polca$Gsq), method=c("loglinear", "poLCA"))
 ```
 
-
 ### Alternative R implementation
 
-
-This does appear to work as well. It requires more hand-holding than `cvam`. 
+This does appear to work as well. It requires more hand-holding than `cvam`.
 
 ```{r}
 library(gllm)
