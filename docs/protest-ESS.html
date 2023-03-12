@@ -206,6 +206,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./ESS-assignment.html" class="sidebar-item-text sidebar-link">Attitudes towards climate change in Europe</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./project-reproduce-LCA.html" class="sidebar-item-text sidebar-link">PROJECT - Reproducing a published LCA</a>
   </div>
 </li>
@@ -630,7 +635,7 @@ ALERT: estimation algorithm automatically restarted with new initial values
 </div>
 </div>
 </section><section id="three-step-method-using-hand-rolled-bch-weights" class="level4"><h4 class="anchored" data-anchor-id="three-step-method-using-hand-rolled-bch-weights">Three-step method using hand-rolled BCH weights</h4>
-<div class="cell" data-hash="protest-ESS_cache/html/unnamed-chunk-24_4c25215f3ada0e6ebac5d04f29af280e">
+<div class="cell" data-hash="protest-ESS_cache/html/unnamed-chunk-24_2e2a1ae2208b022d396ffab0b8792de7">
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">M</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/proportions.html">prop.table</a></span><span class="op">(</span><span class="va">classification_table</span>, <span class="fl">2</span><span class="op">)</span> </span>
 <span><span class="va">Mi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/solve.html">solve</a></span><span class="op">(</span><span class="va">M</span><span class="op">)</span> <span class="co"># Weight matrix</span></span>
 <span><span class="va">K</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span><span class="op">(</span><span class="va">M</span><span class="op">)</span> <span class="co"># Number of classes </span></span>
@@ -652,7 +657,7 @@ ALERT: estimation algorithm automatically restarted with new initial values
 <span><span class="co"># Now we assign the BCH weights based on the </span></span>
 <span><span class="co">#.   inverse- misclassification matrix Mi</span></span>
 <span><span class="va">ess_greece_expanded</span> <span class="op">&lt;-</span> <span class="va">ess_greece_expanded</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>w_bch <span class="op">=</span> <span class="va">Mi</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span><span class="va">W</span>, <span class="va">X</span><span class="op">)</span><span class="op">]</span><span class="op">)</span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>w_bch <span class="op">=</span> <span class="va">Mi</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">W</span><span class="op">)</span><span class="op">]</span><span class="op">)</span> </span>
 <span></span>
 <span><span class="co"># Show a few rows of our constructed data:</span></span>
 <span><span class="va">ess_greece_expanded</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span><span class="op">(</span><span class="va">id_obs</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -744,31 +749,30 @@ other attached packages:
 
 loaded via a namespace (and not attached):
  [1] nlme_3.1-160        fs_1.6.1            lubridate_1.8.0    
- [4] bit64_4.0.5         insight_0.19.0      RColorBrewer_1.1-3 
- [7] httr_1.4.5          tools_4.2.2         backports_1.4.1    
-[10] utf8_1.2.3          R6_2.5.1            DBI_1.1.3          
-[13] colorspace_2.0-3    nnet_7.3-18         withr_2.5.0        
-[16] tidyselect_1.1.2    bit_4.0.5           curl_5.0.0         
-[19] compiler_4.2.2      cli_3.6.0           rvest_1.0.3        
-[22] xml2_1.3.3          labeling_0.4.2      scales_1.2.1       
-[25] digest_0.6.31       minqa_1.2.4         rmarkdown_2.16     
-[28] pkgconfig_2.0.3     htmltools_0.5.4     lme4_1.1-30        
-[31] dbplyr_2.2.1        fastmap_1.1.0       htmlwidgets_1.6.1  
-[34] rlang_1.0.6         readxl_1.4.1        rstudioapi_0.14    
-[37] shape_1.4.6         farver_2.1.1        generics_0.1.3     
-[40] jsonlite_1.8.4      vroom_1.5.7         googlesheets4_1.0.1
-[43] magrittr_2.0.3      Rcpp_1.0.10         munsell_0.5.0      
-[46] fansi_1.0.4         lifecycle_1.0.3     stringi_1.7.12     
-[49] yaml_2.3.7          grid_4.2.2          parallel_4.2.2     
-[52] crayon_1.5.1        lattice_0.20-45     splines_4.2.2      
-[55] hms_1.1.2           knitr_1.40          pillar_1.8.1       
-[58] boot_1.3-28         codetools_0.2-18    reprex_2.0.2       
-[61] glue_1.6.2          evaluate_0.16       mitools_2.4        
-[64] modelr_0.1.9        foreach_1.5.2       vctrs_0.5.2        
-[67] nloptr_2.0.3        tzdb_0.3.0          cellranger_1.1.0   
-[70] gtable_0.3.0        assertthat_0.2.1    xfun_0.32          
-[73] survey_4.1-1        survival_3.4-0      googledrive_2.0.0  
-[76] gargle_1.2.0        iterators_1.0.14    ellipsis_0.3.2     </code></pre>
+ [4] insight_0.19.0      RColorBrewer_1.1-3  httr_1.4.5         
+ [7] tools_4.2.2         backports_1.4.1     utf8_1.2.3         
+[10] R6_2.5.1            DBI_1.1.3           colorspace_2.0-3   
+[13] nnet_7.3-18         withr_2.5.0         tidyselect_1.1.2   
+[16] compiler_4.2.2      cli_3.6.0           rvest_1.0.3        
+[19] xml2_1.3.3          labeling_0.4.2      scales_1.2.1       
+[22] digest_0.6.31       minqa_1.2.4         rmarkdown_2.16     
+[25] pkgconfig_2.0.3     htmltools_0.5.4     lme4_1.1-30        
+[28] dbplyr_2.2.1        fastmap_1.1.0       htmlwidgets_1.6.1  
+[31] rlang_1.0.6         readxl_1.4.1        rstudioapi_0.14    
+[34] shape_1.4.6         farver_2.1.1        generics_0.1.3     
+[37] jsonlite_1.8.4      googlesheets4_1.0.1 magrittr_2.0.3     
+[40] Rcpp_1.0.10         munsell_0.5.0       fansi_1.0.4        
+[43] lifecycle_1.0.3     stringi_1.7.12      yaml_2.3.7         
+[46] grid_4.2.2          crayon_1.5.1        lattice_0.20-45    
+[49] splines_4.2.2       hms_1.1.2           knitr_1.40         
+[52] pillar_1.8.1        boot_1.3-28         codetools_0.2-18   
+[55] reprex_2.0.2        glue_1.6.2          evaluate_0.16      
+[58] mitools_2.4         modelr_0.1.9        vctrs_0.5.2        
+[61] nloptr_2.0.3        tzdb_0.3.0          foreach_1.5.2      
+[64] cellranger_1.1.0    gtable_0.3.0        assertthat_0.2.1   
+[67] xfun_0.32           survey_4.1-1        survival_3.4-0     
+[70] googledrive_2.0.0   gargle_1.2.0        iterators_1.0.14   
+[73] ellipsis_0.3.2     </code></pre>
 </div>
 </div>
 
@@ -992,15 +996,15 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb38-33"><a href="#cb38-33" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb38-34"><a href="#cb38-34" aria-hidden="true" tabindex="-1"></a>For each of these survey questions, 1="Yes" and 2="No".</span>
 <span id="cb38-35"><a href="#cb38-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-36"><a href="#cb38-36" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="in">`contplt`</span> - Contacted politician or government official last 12 months</span>
-<span id="cb38-37"><a href="#cb38-37" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="in">`wrkprty`</span> - Worked in political party or action group last 12 months</span>
-<span id="cb38-38"><a href="#cb38-38" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="in">`wrkorg`</span> - Worked in another organisation or association last 12 months</span>
-<span id="cb38-39"><a href="#cb38-39" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="in">`badge`</span> - Worn or displayed campaign badge/sticker last 12 months</span>
-<span id="cb38-40"><a href="#cb38-40" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="in">`sgnptit`</span> - Signed petition last 12 months</span>
-<span id="cb38-41"><a href="#cb38-41" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="in">`pbldmn`</span> - Taken part in lawful public demonstration last 12 months</span>
-<span id="cb38-42"><a href="#cb38-42" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="in">`bctprd`</span> - Boycotted certain products last 12 months </span>
-<span id="cb38-43"><a href="#cb38-43" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="in">`gndr`</span> - Gender </span>
-<span id="cb38-44"><a href="#cb38-44" aria-hidden="true" tabindex="-1"></a><span class="ss">-  </span><span class="in">`agea`</span> - Age of respondent, calculated </span>
+<span id="cb38-36"><a href="#cb38-36" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="in">`contplt`</span> - Contacted politician or government official last 12 months</span>
+<span id="cb38-37"><a href="#cb38-37" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="in">`wrkprty`</span> - Worked in political party or action group last 12 months</span>
+<span id="cb38-38"><a href="#cb38-38" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="in">`wrkorg`</span> - Worked in another organisation or association last 12 months</span>
+<span id="cb38-39"><a href="#cb38-39" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="in">`badge`</span> - Worn or displayed campaign badge/sticker last 12 months</span>
+<span id="cb38-40"><a href="#cb38-40" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="in">`sgnptit`</span> - Signed petition last 12 months</span>
+<span id="cb38-41"><a href="#cb38-41" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="in">`pbldmn`</span> - Taken part in lawful public demonstration last 12 months</span>
+<span id="cb38-42"><a href="#cb38-42" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="in">`bctprd`</span> - Boycotted certain products last 12 months</span>
+<span id="cb38-43"><a href="#cb38-43" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="in">`gndr`</span> - Gender</span>
+<span id="cb38-44"><a href="#cb38-44" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="in">`agea`</span> - Age of respondent, calculated</span>
 <span id="cb38-45"><a href="#cb38-45" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb38-48"><a href="#cb38-48" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb38-49"><a href="#cb38-49" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
@@ -1008,102 +1012,102 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb38-51"><a href="#cb38-51" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb38-52"><a href="#cb38-52" aria-hidden="true" tabindex="-1"></a>ess_greece <span class="sc">|&gt;</span> rmarkdown<span class="sc">::</span><span class="fu">paged_table</span>()</span>
 <span id="cb38-53"><a href="#cb38-53" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb38-54"><a href="#cb38-54" aria-hidden="true" tabindex="-1"></a>Sadly, <span class="in">`poLCA`</span> has no way of dealing with missing values other than "listwise deletion" (<span class="in">`na.omit`</span>). For later comparability of models with different sets of variables, we create a single dataset without missings. </span>
-<span id="cb38-55"><a href="#cb38-55" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-58"><a href="#cb38-58" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb38-59"><a href="#cb38-59" aria-hidden="true" tabindex="-1"></a>ess_greece <span class="ot">&lt;-</span> <span class="fu">na.omit</span>(ess_greece)</span>
-<span id="cb38-60"><a href="#cb38-60" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb38-61"><a href="#cb38-61" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-62"><a href="#cb38-62" aria-hidden="true" tabindex="-1"></a>Show the data as pattern frequencies.</span>
-<span id="cb38-63"><a href="#cb38-63" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-66"><a href="#cb38-66" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb38-67"><a href="#cb38-67" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(ess_greece) <span class="sc">%&gt;%</span> </span>
-<span id="cb38-68"><a href="#cb38-68" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb38-69"><a href="#cb38-69" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Freq <span class="sc">!=</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb38-70"><a href="#cb38-70" aria-hidden="true" tabindex="-1"></a>  rmarkdown<span class="sc">::</span><span class="fu">paged_table</span>()</span>
-<span id="cb38-71"><a href="#cb38-71" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb38-72"><a href="#cb38-72" aria-hidden="true" tabindex="-1"></a><span class="fu">### Try out models with different number of classes </span></span>
+<span id="cb38-54"><a href="#cb38-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-55"><a href="#cb38-55" aria-hidden="true" tabindex="-1"></a>Sadly, <span class="in">`poLCA`</span> has no way of dealing with missing values other than "listwise deletion" (<span class="in">`na.omit`</span>). For later comparability of models with different sets of variables, we create a single dataset without missings.</span>
+<span id="cb38-56"><a href="#cb38-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-59"><a href="#cb38-59" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb38-60"><a href="#cb38-60" aria-hidden="true" tabindex="-1"></a>ess_greece <span class="ot">&lt;-</span> <span class="fu">na.omit</span>(ess_greece)</span>
+<span id="cb38-61"><a href="#cb38-61" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb38-62"><a href="#cb38-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-63"><a href="#cb38-63" aria-hidden="true" tabindex="-1"></a>Show the data as pattern frequencies.</span>
+<span id="cb38-64"><a href="#cb38-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-67"><a href="#cb38-67" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb38-68"><a href="#cb38-68" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(ess_greece) <span class="sc">%&gt;%</span> </span>
+<span id="cb38-69"><a href="#cb38-69" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb38-70"><a href="#cb38-70" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Freq <span class="sc">!=</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb38-71"><a href="#cb38-71" aria-hidden="true" tabindex="-1"></a>  rmarkdown<span class="sc">::</span><span class="fu">paged_table</span>()</span>
+<span id="cb38-72"><a href="#cb38-72" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb38-73"><a href="#cb38-73" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-74"><a href="#cb38-74" aria-hidden="true" tabindex="-1"></a>Create a convenience function that will fit the K-class model to</span>
-<span id="cb38-75"><a href="#cb38-75" aria-hidden="true" tabindex="-1"></a>the political participation data.</span>
-<span id="cb38-76"><a href="#cb38-76" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-79"><a href="#cb38-79" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb38-80"><a href="#cb38-80" aria-hidden="true" tabindex="-1"></a>fitLCA <span class="ot">&lt;-</span> <span class="cf">function</span>(k) {</span>
-<span id="cb38-81"><a href="#cb38-81" aria-hidden="true" tabindex="-1"></a>  f <span class="ot">&lt;-</span> <span class="fu">cbind</span>(contplt, wrkprty, wrkorg, badge, </span>
-<span id="cb38-82"><a href="#cb38-82" aria-hidden="true" tabindex="-1"></a>           sgnptit, pbldmn, bctprd) <span class="sc">~</span> <span class="dv">1</span></span>
-<span id="cb38-83"><a href="#cb38-83" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb38-84"><a href="#cb38-84" aria-hidden="true" tabindex="-1"></a>  <span class="fu">poLCA</span>(<span class="at">formula =</span> f, <span class="at">data =</span> ess_greece, <span class="at">nclass =</span> k, </span>
-<span id="cb38-85"><a href="#cb38-85" aria-hidden="true" tabindex="-1"></a>        <span class="at">nrep =</span> <span class="dv">10</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb38-86"><a href="#cb38-86" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb38-87"><a href="#cb38-87" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb38-88"><a href="#cb38-88" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-89"><a href="#cb38-89" aria-hidden="true" tabindex="-1"></a>Apply the function to successively increasingly classes K = 1, 2, 3, ..., 6. (Note: this can take a while!)</span>
-<span id="cb38-90"><a href="#cb38-90" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-93"><a href="#cb38-93" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb38-94"><a href="#cb38-94" aria-hidden="true" tabindex="-1"></a>MK <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>, fitLCA)</span>
-<span id="cb38-95"><a href="#cb38-95" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb38-96"><a href="#cb38-96" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-97"><a href="#cb38-97" aria-hidden="true" tabindex="-1"></a><span class="fu">### Compare model fit</span></span>
-<span id="cb38-98"><a href="#cb38-98" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-99"><a href="#cb38-99" aria-hidden="true" tabindex="-1"></a>Possible to look at AIC, BIC, etc.</span>
-<span id="cb38-100"><a href="#cb38-100" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-103"><a href="#cb38-103" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb38-104"><a href="#cb38-104" aria-hidden="true" tabindex="-1"></a>aic_values <span class="ot">&lt;-</span> <span class="fu">sapply</span>(MK, <span class="st">`</span><span class="at">[[</span><span class="st">`</span>, <span class="st">"aic"</span>)</span>
-<span id="cb38-105"><a href="#cb38-105" aria-hidden="true" tabindex="-1"></a>bic_values <span class="ot">&lt;-</span> <span class="fu">sapply</span>(MK, <span class="st">`</span><span class="at">[[</span><span class="st">`</span>, <span class="st">"bic"</span>)</span>
-<span id="cb38-106"><a href="#cb38-106" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb38-107"><a href="#cb38-107" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-110"><a href="#cb38-110" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb38-111"><a href="#cb38-111" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">seq_along</span>(aic_values), aic_values, <span class="at">type =</span> <span class="st">"b"</span>, <span class="at">xlab =</span> <span class="st">"Number of classes"</span>, <span class="at">ylab =</span> <span class="st">"AIC"</span>, <span class="at">las =</span> <span class="dv">2</span>)</span>
-<span id="cb38-112"><a href="#cb38-112" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb38-113"><a href="#cb38-113" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-116"><a href="#cb38-116" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb38-117"><a href="#cb38-117" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">seq_along</span>(aic_values), aic_values, <span class="at">type =</span> <span class="st">"b"</span>, <span class="at">xlab =</span> <span class="st">"Number of classes"</span>, <span class="at">ylab =</span> <span class="st">"BIC"</span>, <span class="at">las =</span> <span class="dv">2</span>)</span>
-<span id="cb38-118"><a href="#cb38-118" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb38-119"><a href="#cb38-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-74"><a href="#cb38-74" aria-hidden="true" tabindex="-1"></a><span class="fu">### Try out models with different number of classes</span></span>
+<span id="cb38-75"><a href="#cb38-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-76"><a href="#cb38-76" aria-hidden="true" tabindex="-1"></a>Create a convenience function that will fit the K-class model to the political participation data.</span>
+<span id="cb38-77"><a href="#cb38-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-80"><a href="#cb38-80" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb38-81"><a href="#cb38-81" aria-hidden="true" tabindex="-1"></a>fitLCA <span class="ot">&lt;-</span> <span class="cf">function</span>(k) {</span>
+<span id="cb38-82"><a href="#cb38-82" aria-hidden="true" tabindex="-1"></a>  f <span class="ot">&lt;-</span> <span class="fu">cbind</span>(contplt, wrkprty, wrkorg, badge, </span>
+<span id="cb38-83"><a href="#cb38-83" aria-hidden="true" tabindex="-1"></a>           sgnptit, pbldmn, bctprd) <span class="sc">~</span> <span class="dv">1</span></span>
+<span id="cb38-84"><a href="#cb38-84" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb38-85"><a href="#cb38-85" aria-hidden="true" tabindex="-1"></a>  <span class="fu">poLCA</span>(<span class="at">formula =</span> f, <span class="at">data =</span> ess_greece, <span class="at">nclass =</span> k, </span>
+<span id="cb38-86"><a href="#cb38-86" aria-hidden="true" tabindex="-1"></a>        <span class="at">nrep =</span> <span class="dv">10</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb38-87"><a href="#cb38-87" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb38-88"><a href="#cb38-88" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb38-89"><a href="#cb38-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-90"><a href="#cb38-90" aria-hidden="true" tabindex="-1"></a>Apply the function to successively increasingly classes K = 1, 2, 3, ..., 6. (Note: this can take a while!)</span>
+<span id="cb38-91"><a href="#cb38-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-94"><a href="#cb38-94" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb38-95"><a href="#cb38-95" aria-hidden="true" tabindex="-1"></a>MK <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>, fitLCA)</span>
+<span id="cb38-96"><a href="#cb38-96" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb38-97"><a href="#cb38-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-98"><a href="#cb38-98" aria-hidden="true" tabindex="-1"></a><span class="fu">### Compare model fit</span></span>
+<span id="cb38-99"><a href="#cb38-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-100"><a href="#cb38-100" aria-hidden="true" tabindex="-1"></a>Possible to look at AIC, BIC, etc.</span>
+<span id="cb38-101"><a href="#cb38-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-104"><a href="#cb38-104" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb38-105"><a href="#cb38-105" aria-hidden="true" tabindex="-1"></a>aic_values <span class="ot">&lt;-</span> <span class="fu">sapply</span>(MK, <span class="st">`</span><span class="at">[[</span><span class="st">`</span>, <span class="st">"aic"</span>)</span>
+<span id="cb38-106"><a href="#cb38-106" aria-hidden="true" tabindex="-1"></a>bic_values <span class="ot">&lt;-</span> <span class="fu">sapply</span>(MK, <span class="st">`</span><span class="at">[[</span><span class="st">`</span>, <span class="st">"bic"</span>)</span>
+<span id="cb38-107"><a href="#cb38-107" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb38-108"><a href="#cb38-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-111"><a href="#cb38-111" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb38-112"><a href="#cb38-112" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">seq_along</span>(aic_values), aic_values, <span class="at">type =</span> <span class="st">"b"</span>, <span class="at">xlab =</span> <span class="st">"Number of classes"</span>, <span class="at">ylab =</span> <span class="st">"AIC"</span>, <span class="at">las =</span> <span class="dv">2</span>)</span>
+<span id="cb38-113"><a href="#cb38-113" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb38-114"><a href="#cb38-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-117"><a href="#cb38-117" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb38-118"><a href="#cb38-118" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">seq_along</span>(aic_values), aic_values, <span class="at">type =</span> <span class="st">"b"</span>, <span class="at">xlab =</span> <span class="st">"Number of classes"</span>, <span class="at">ylab =</span> <span class="st">"BIC"</span>, <span class="at">las =</span> <span class="dv">2</span>)</span>
+<span id="cb38-119"><a href="#cb38-119" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb38-120"><a href="#cb38-120" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-121"><a href="#cb38-121" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-122"><a href="#cb38-122" aria-hidden="true" tabindex="-1"></a><span class="fu">### Select a model</span></span>
-<span id="cb38-123"><a href="#cb38-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-121"><a href="#cb38-121" aria-hidden="true" tabindex="-1"></a><span class="fu">### Select a model</span></span>
+<span id="cb38-122"><a href="#cb38-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-123"><a href="#cb38-123" aria-hidden="true" tabindex="-1"></a>We select the four-class model.</span>
 <span id="cb38-124"><a href="#cb38-124" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-125"><a href="#cb38-125" aria-hidden="true" tabindex="-1"></a>We select the four-class model.</span>
-<span id="cb38-128"><a href="#cb38-128" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb38-129"><a href="#cb38-129" aria-hidden="true" tabindex="-1"></a>form_activism <span class="ot">&lt;-</span> <span class="fu">cbind</span>(contplt, wrkprty, wrkorg, </span>
-<span id="cb38-130"><a href="#cb38-130" aria-hidden="true" tabindex="-1"></a>                       badge, sgnptit, pbldmn, bctprd) <span class="sc">~</span> <span class="dv">1</span></span>
-<span id="cb38-131"><a href="#cb38-131" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-132"><a href="#cb38-132" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">poLCA</span>(form_activism, </span>
-<span id="cb38-133"><a href="#cb38-133" aria-hidden="true" tabindex="-1"></a>             <span class="at">data =</span> ess_greece, </span>
-<span id="cb38-134"><a href="#cb38-134" aria-hidden="true" tabindex="-1"></a>             <span class="at">nclass =</span> <span class="dv">4</span>, </span>
-<span id="cb38-135"><a href="#cb38-135" aria-hidden="true" tabindex="-1"></a>             <span class="at">nrep =</span> <span class="dv">20</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb38-136"><a href="#cb38-136" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb38-137"><a href="#cb38-137" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-138"><a href="#cb38-138" aria-hidden="true" tabindex="-1"></a>Here is the default plot given by <span class="in">`polCA`</span>.</span>
-<span id="cb38-139"><a href="#cb38-139" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-142"><a href="#cb38-142" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb38-143"><a href="#cb38-143" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit)</span>
-<span id="cb38-144"><a href="#cb38-144" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb38-145"><a href="#cb38-145" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-146"><a href="#cb38-146" aria-hidden="true" tabindex="-1"></a>In this case the default plot is still somewhat readable, but in practice it is not the best as data visualizations go. A simple line plot does a better job (in my personal &amp; completely subjective opinion!) and allows you to display confidence intervals to boot. We use <span class="in">`tidy`</span> from the <span class="in">`broom`</span> package to extract the results and <span class="in">`ggplot`</span> to plot.</span>
-<span id="cb38-147"><a href="#cb38-147" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-150"><a href="#cb38-150" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb38-151"><a href="#cb38-151" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
-<span id="cb38-152"><a href="#cb38-152" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
-<span id="cb38-153"><a href="#cb38-153" aria-hidden="true" tabindex="-1"></a><span class="fu">tidy</span>(fit) <span class="sc">%&gt;%</span> <span class="co"># from `broom` package</span></span>
-<span id="cb38-154"><a href="#cb38-154" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(outcome <span class="sc">==</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb38-155"><a href="#cb38-155" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">class =</span> <span class="fu">as.factor</span>(class)) <span class="sc">%&gt;%</span></span>
-<span id="cb38-156"><a href="#cb38-156" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(variable, estimate, <span class="at">group =</span> class, <span class="at">color =</span> class)) <span class="sc">+</span></span>
-<span id="cb38-157"><a href="#cb38-157" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> <span class="fu">geom_line</span>() <span class="sc">+</span> </span>
-<span id="cb38-158"><a href="#cb38-158" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> estimate <span class="sc">-</span> <span class="dv">2</span><span class="sc">*</span>std.error, </span>
-<span id="cb38-159"><a href="#cb38-159" aria-hidden="true" tabindex="-1"></a>                    <span class="at">ymax =</span> estimate <span class="sc">+</span> <span class="dv">2</span><span class="sc">*</span>std.error), <span class="at">width =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
-<span id="cb38-160"><a href="#cb38-160" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span> <span class="fu">scale_color_brewer</span>(<span class="at">palette =</span> <span class="st">"Set2"</span>)</span>
-<span id="cb38-161"><a href="#cb38-161" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb38-162"><a href="#cb38-162" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-163"><a href="#cb38-163" aria-hidden="true" tabindex="-1"></a><span class="fu">### Local fit</span></span>
-<span id="cb38-164"><a href="#cb38-164" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-167"><a href="#cb38-167" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb38-168"><a href="#cb38-168" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(poLCA.extras)</span>
-<span id="cb38-169"><a href="#cb38-169" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-170"><a href="#cb38-170" aria-hidden="true" tabindex="-1"></a><span class="fu">bvr</span>(fit)</span>
-<span id="cb38-171"><a href="#cb38-171" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb38-127"><a href="#cb38-127" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb38-128"><a href="#cb38-128" aria-hidden="true" tabindex="-1"></a>form_activism <span class="ot">&lt;-</span> <span class="fu">cbind</span>(contplt, wrkprty, wrkorg, </span>
+<span id="cb38-129"><a href="#cb38-129" aria-hidden="true" tabindex="-1"></a>                       badge, sgnptit, pbldmn, bctprd) <span class="sc">~</span> <span class="dv">1</span></span>
+<span id="cb38-130"><a href="#cb38-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-131"><a href="#cb38-131" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">poLCA</span>(form_activism, </span>
+<span id="cb38-132"><a href="#cb38-132" aria-hidden="true" tabindex="-1"></a>             <span class="at">data =</span> ess_greece, </span>
+<span id="cb38-133"><a href="#cb38-133" aria-hidden="true" tabindex="-1"></a>             <span class="at">nclass =</span> <span class="dv">4</span>, </span>
+<span id="cb38-134"><a href="#cb38-134" aria-hidden="true" tabindex="-1"></a>             <span class="at">nrep =</span> <span class="dv">20</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb38-135"><a href="#cb38-135" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb38-136"><a href="#cb38-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-137"><a href="#cb38-137" aria-hidden="true" tabindex="-1"></a>Here is the default plot given by <span class="in">`polCA`</span>.</span>
+<span id="cb38-138"><a href="#cb38-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-141"><a href="#cb38-141" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb38-142"><a href="#cb38-142" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit)</span>
+<span id="cb38-143"><a href="#cb38-143" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb38-144"><a href="#cb38-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-145"><a href="#cb38-145" aria-hidden="true" tabindex="-1"></a>In this case the default plot is still somewhat readable, but in practice it is not the best as data visualizations go. A simple line plot does a better job (in my personal &amp; completely subjective opinion!) and allows you to display confidence intervals to boot. We use <span class="in">`tidy`</span> from the <span class="in">`broom`</span> package to extract the results and <span class="in">`ggplot`</span> to plot.</span>
+<span id="cb38-146"><a href="#cb38-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-149"><a href="#cb38-149" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb38-150"><a href="#cb38-150" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb38-151"><a href="#cb38-151" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb38-152"><a href="#cb38-152" aria-hidden="true" tabindex="-1"></a><span class="fu">tidy</span>(fit) <span class="sc">%&gt;%</span> <span class="co"># from `broom` package</span></span>
+<span id="cb38-153"><a href="#cb38-153" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(outcome <span class="sc">==</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb38-154"><a href="#cb38-154" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">class =</span> <span class="fu">as.factor</span>(class)) <span class="sc">%&gt;%</span></span>
+<span id="cb38-155"><a href="#cb38-155" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(variable, estimate, <span class="at">group =</span> class, <span class="at">color =</span> class)) <span class="sc">+</span></span>
+<span id="cb38-156"><a href="#cb38-156" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> <span class="fu">geom_line</span>() <span class="sc">+</span> </span>
+<span id="cb38-157"><a href="#cb38-157" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> estimate <span class="sc">-</span> <span class="dv">2</span><span class="sc">*</span>std.error, </span>
+<span id="cb38-158"><a href="#cb38-158" aria-hidden="true" tabindex="-1"></a>                    <span class="at">ymax =</span> estimate <span class="sc">+</span> <span class="dv">2</span><span class="sc">*</span>std.error), <span class="at">width =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb38-159"><a href="#cb38-159" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span> <span class="fu">scale_color_brewer</span>(<span class="at">palette =</span> <span class="st">"Set2"</span>)</span>
+<span id="cb38-160"><a href="#cb38-160" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb38-161"><a href="#cb38-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-162"><a href="#cb38-162" aria-hidden="true" tabindex="-1"></a><span class="fu">### Local fit</span></span>
+<span id="cb38-163"><a href="#cb38-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-166"><a href="#cb38-166" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb38-167"><a href="#cb38-167" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(poLCA.extras)</span>
+<span id="cb38-168"><a href="#cb38-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-169"><a href="#cb38-169" aria-hidden="true" tabindex="-1"></a><span class="fu">bvr</span>(fit)</span>
+<span id="cb38-170"><a href="#cb38-170" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb38-171"><a href="#cb38-171" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb38-174"><a href="#cb38-174" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb38-175"><a href="#cb38-175" aria-hidden="true" tabindex="-1"></a><span class="fu">bootstrap_bvr_pvals</span>(form_activism, fit, ess_greece, <span class="at">R =</span> <span class="dv">200</span>)</span>
 <span id="cb38-176"><a href="#cb38-176" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
@@ -1161,9 +1165,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb38-236"><a href="#cb38-236" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb38-237"><a href="#cb38-237" aria-hidden="true" tabindex="-1"></a>Now we fit the four-class model, but include covariates that predict the class membership. Class membership is predicted by gender and a quadratic age effect.</span>
 <span id="cb38-238"><a href="#cb38-238" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-239"><a href="#cb38-239" aria-hidden="true" tabindex="-1"></a>We also use the results from the model without covariates as starting values for the solution. </span>
+<span id="cb38-239"><a href="#cb38-239" aria-hidden="true" tabindex="-1"></a>We also use the results from the model without covariates as starting values for the solution.</span>
 <span id="cb38-240"><a href="#cb38-240" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-241"><a href="#cb38-241" aria-hidden="true" tabindex="-1"></a>This is where the analyzed data would have been different if we had not already deleted all cases with at least one missing value above using <span class="in">`na.omit`</span>. In practice this may lead to trouble, especially when there are many variables. </span>
+<span id="cb38-241"><a href="#cb38-241" aria-hidden="true" tabindex="-1"></a>This is where the analyzed data would have been different if we had not already deleted all cases with at least one missing value above using <span class="in">`na.omit`</span>. In practice this may lead to trouble, especially when there are many variables.</span>
 <span id="cb38-242"><a href="#cb38-242" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb38-245"><a href="#cb38-245" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb38-246"><a href="#cb38-246" aria-hidden="true" tabindex="-1"></a>form_activism <span class="ot">&lt;-</span> <span class="fu">cbind</span>(contplt, wrkprty, wrkorg, </span>
@@ -1177,30 +1181,30 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb38-254"><a href="#cb38-254" aria-hidden="true" tabindex="-1"></a>        <span class="at">verbose =</span> <span class="cn">FALSE</span>, <span class="at">nrep =</span> <span class="dv">50</span>)</span>
 <span id="cb38-255"><a href="#cb38-255" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb38-256"><a href="#cb38-256" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-257"><a href="#cb38-257" aria-hidden="true" tabindex="-1"></a>The results now include multinomial regression coefficients in a model predicting class membership. </span>
+<span id="cb38-257"><a href="#cb38-257" aria-hidden="true" tabindex="-1"></a>The results now include multinomial regression coefficients in a model predicting class membership.</span>
 <span id="cb38-258"><a href="#cb38-258" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb38-261"><a href="#cb38-261" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb38-262"><a href="#cb38-262" aria-hidden="true" tabindex="-1"></a>fit_covariates</span>
 <span id="cb38-263"><a href="#cb38-263" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb38-264"><a href="#cb38-264" aria-hidden="true" tabindex="-1"></a>The solution may have changed now that covariates are included.  </span>
-<span id="cb38-265"><a href="#cb38-265" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-268"><a href="#cb38-268" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb38-269"><a href="#cb38-269" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
-<span id="cb38-270"><a href="#cb38-270" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
-<span id="cb38-271"><a href="#cb38-271" aria-hidden="true" tabindex="-1"></a><span class="fu">tidy</span>(fit_covariates) <span class="sc">%&gt;%</span> </span>
-<span id="cb38-272"><a href="#cb38-272" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(outcome <span class="sc">==</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb38-273"><a href="#cb38-273" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">class =</span> <span class="fu">as.factor</span>(class)) <span class="sc">%&gt;%</span></span>
-<span id="cb38-274"><a href="#cb38-274" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(variable, estimate, <span class="at">group =</span> class, <span class="at">color =</span> class)) <span class="sc">+</span></span>
-<span id="cb38-275"><a href="#cb38-275" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> <span class="fu">geom_line</span>() <span class="sc">+</span> </span>
-<span id="cb38-276"><a href="#cb38-276" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> estimate <span class="sc">-</span> <span class="dv">2</span><span class="sc">*</span>std.error, </span>
-<span id="cb38-277"><a href="#cb38-277" aria-hidden="true" tabindex="-1"></a>                    <span class="at">ymax =</span> estimate <span class="sc">+</span> <span class="dv">2</span><span class="sc">*</span>std.error), <span class="at">width =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
-<span id="cb38-278"><a href="#cb38-278" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span> <span class="fu">scale_color_brewer</span>(<span class="at">palette =</span> <span class="st">"Set2"</span>)</span>
-<span id="cb38-279"><a href="#cb38-279" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb38-280"><a href="#cb38-280" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-264"><a href="#cb38-264" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-265"><a href="#cb38-265" aria-hidden="true" tabindex="-1"></a>The solution may have changed now that covariates are included.</span>
+<span id="cb38-266"><a href="#cb38-266" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-269"><a href="#cb38-269" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb38-270"><a href="#cb38-270" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb38-271"><a href="#cb38-271" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb38-272"><a href="#cb38-272" aria-hidden="true" tabindex="-1"></a><span class="fu">tidy</span>(fit_covariates) <span class="sc">%&gt;%</span> </span>
+<span id="cb38-273"><a href="#cb38-273" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(outcome <span class="sc">==</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb38-274"><a href="#cb38-274" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">class =</span> <span class="fu">as.factor</span>(class)) <span class="sc">%&gt;%</span></span>
+<span id="cb38-275"><a href="#cb38-275" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(variable, estimate, <span class="at">group =</span> class, <span class="at">color =</span> class)) <span class="sc">+</span></span>
+<span id="cb38-276"><a href="#cb38-276" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> <span class="fu">geom_line</span>() <span class="sc">+</span> </span>
+<span id="cb38-277"><a href="#cb38-277" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> estimate <span class="sc">-</span> <span class="dv">2</span><span class="sc">*</span>std.error, </span>
+<span id="cb38-278"><a href="#cb38-278" aria-hidden="true" tabindex="-1"></a>                    <span class="at">ymax =</span> estimate <span class="sc">+</span> <span class="dv">2</span><span class="sc">*</span>std.error), <span class="at">width =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb38-279"><a href="#cb38-279" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span> <span class="fu">scale_color_brewer</span>(<span class="at">palette =</span> <span class="st">"Set2"</span>)</span>
+<span id="cb38-280"><a href="#cb38-280" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb38-281"><a href="#cb38-281" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb38-282"><a href="#cb38-282" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Effects plot</span></span>
 <span id="cb38-283"><a href="#cb38-283" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-284"><a href="#cb38-284" aria-hidden="true" tabindex="-1"></a>We can easily plot the results of the multinomial model using the <span class="in">`effects`</span> library. </span>
+<span id="cb38-284"><a href="#cb38-284" aria-hidden="true" tabindex="-1"></a>We can easily plot the results of the multinomial model using the <span class="in">`effects`</span> library.</span>
 <span id="cb38-285"><a href="#cb38-285" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb38-288"><a href="#cb38-288" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb38-289"><a href="#cb38-289" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
@@ -1212,37 +1216,37 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb38-297"><a href="#cb38-297" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(effect_age, <span class="at">lines=</span><span class="fu">list</span>(<span class="at">multiline=</span><span class="cn">TRUE</span>))</span>
 <span id="cb38-298"><a href="#cb38-298" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb38-299"><a href="#cb38-299" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-300"><a href="#cb38-300" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-301"><a href="#cb38-301" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Three-step method using hand-rolled BCH  weights</span></span>
-<span id="cb38-302"><a href="#cb38-302" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-305"><a href="#cb38-305" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb38-306"><a href="#cb38-306" aria-hidden="true" tabindex="-1"></a>M <span class="ot">&lt;-</span> <span class="fu">prop.table</span>(classification_table, <span class="dv">2</span>) </span>
-<span id="cb38-307"><a href="#cb38-307" aria-hidden="true" tabindex="-1"></a>Mi <span class="ot">&lt;-</span> <span class="fu">solve</span>(M) <span class="co"># Weight matrix</span></span>
-<span id="cb38-308"><a href="#cb38-308" aria-hidden="true" tabindex="-1"></a>K <span class="ot">&lt;-</span> <span class="fu">ncol</span>(M) <span class="co"># Number of classes </span></span>
-<span id="cb38-309"><a href="#cb38-309" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-310"><a href="#cb38-310" aria-hidden="true" tabindex="-1"></a><span class="co"># The data used by poLCA (may differ from raw due to missings):</span></span>
-<span id="cb38-311"><a href="#cb38-311" aria-hidden="true" tabindex="-1"></a>dat_used_by_fit <span class="ot">&lt;-</span> ess_greece</span>
-<span id="cb38-312"><a href="#cb38-312" aria-hidden="true" tabindex="-1"></a><span class="co"># Assigned class membership (by default uses modal assignment):</span></span>
-<span id="cb38-313"><a href="#cb38-313" aria-hidden="true" tabindex="-1"></a>dat_used_by_fit<span class="sc">$</span>W <span class="ot">&lt;-</span> fit<span class="sc">$</span>predclass </span>
-<span id="cb38-314"><a href="#cb38-314" aria-hidden="true" tabindex="-1"></a>dat_used_by_fit<span class="sc">$</span>id_obs <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fu">NROW</span>(dat_used_by_fit))</span>
-<span id="cb38-315"><a href="#cb38-315" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-316"><a href="#cb38-316" aria-hidden="true" tabindex="-1"></a><span class="co"># Create expanded dataset with K rows for each observation:</span></span>
-<span id="cb38-317"><a href="#cb38-317" aria-hidden="true" tabindex="-1"></a>ess_greece_expanded <span class="ot">&lt;-</span> <span class="fu">replicate</span>(K, dat_used_by_fit, <span class="at">simplify =</span> <span class="cn">FALSE</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb38-318"><a href="#cb38-318" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reduce</span>(rbind)</span>
-<span id="cb38-319"><a href="#cb38-319" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-320"><a href="#cb38-320" aria-hidden="true" tabindex="-1"></a><span class="co"># Each of the replicated rows will correspond to one possible</span></span>
-<span id="cb38-321"><a href="#cb38-321" aria-hidden="true" tabindex="-1"></a><span class="co">#.  value of the true latent class:</span></span>
-<span id="cb38-322"><a href="#cb38-322" aria-hidden="true" tabindex="-1"></a>ess_greece_expanded<span class="sc">$</span>X <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>K, <span class="at">each =</span> <span class="fu">NROW</span>(dat_used_by_fit))</span>
-<span id="cb38-323"><a href="#cb38-323" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-324"><a href="#cb38-324" aria-hidden="true" tabindex="-1"></a><span class="co"># Now we assign the BCH weights based on the </span></span>
-<span id="cb38-325"><a href="#cb38-325" aria-hidden="true" tabindex="-1"></a><span class="co">#.   inverse- misclassification matrix Mi</span></span>
-<span id="cb38-326"><a href="#cb38-326" aria-hidden="true" tabindex="-1"></a>ess_greece_expanded <span class="ot">&lt;-</span> ess_greece_expanded <span class="sc">%&gt;%</span></span>
-<span id="cb38-327"><a href="#cb38-327" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">w_bch =</span> Mi[<span class="fu">cbind</span>(W, X)]) </span>
-<span id="cb38-328"><a href="#cb38-328" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-329"><a href="#cb38-329" aria-hidden="true" tabindex="-1"></a><span class="co"># Show a few rows of our constructed data:</span></span>
-<span id="cb38-330"><a href="#cb38-330" aria-hidden="true" tabindex="-1"></a>ess_greece_expanded <span class="sc">%&gt;%</span> <span class="fu">arrange</span>(id_obs) <span class="sc">%&gt;%</span> <span class="fu">head</span>()</span>
-<span id="cb38-331"><a href="#cb38-331" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb38-332"><a href="#cb38-332" aria-hidden="true" tabindex="-1"></a>The only library I was able to find that is both reliable and also does multinomial regression allowing _negative weights_ is <span class="in">`glmnet`</span>. </span>
+<span id="cb38-300"><a href="#cb38-300" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Three-step method using hand-rolled BCH weights</span></span>
+<span id="cb38-301"><a href="#cb38-301" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-304"><a href="#cb38-304" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb38-305"><a href="#cb38-305" aria-hidden="true" tabindex="-1"></a>M <span class="ot">&lt;-</span> <span class="fu">prop.table</span>(classification_table, <span class="dv">2</span>) </span>
+<span id="cb38-306"><a href="#cb38-306" aria-hidden="true" tabindex="-1"></a>Mi <span class="ot">&lt;-</span> <span class="fu">solve</span>(M) <span class="co"># Weight matrix</span></span>
+<span id="cb38-307"><a href="#cb38-307" aria-hidden="true" tabindex="-1"></a>K <span class="ot">&lt;-</span> <span class="fu">ncol</span>(M) <span class="co"># Number of classes </span></span>
+<span id="cb38-308"><a href="#cb38-308" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-309"><a href="#cb38-309" aria-hidden="true" tabindex="-1"></a><span class="co"># The data used by poLCA (may differ from raw due to missings):</span></span>
+<span id="cb38-310"><a href="#cb38-310" aria-hidden="true" tabindex="-1"></a>dat_used_by_fit <span class="ot">&lt;-</span> ess_greece</span>
+<span id="cb38-311"><a href="#cb38-311" aria-hidden="true" tabindex="-1"></a><span class="co"># Assigned class membership (by default uses modal assignment):</span></span>
+<span id="cb38-312"><a href="#cb38-312" aria-hidden="true" tabindex="-1"></a>dat_used_by_fit<span class="sc">$</span>W <span class="ot">&lt;-</span> fit<span class="sc">$</span>predclass </span>
+<span id="cb38-313"><a href="#cb38-313" aria-hidden="true" tabindex="-1"></a>dat_used_by_fit<span class="sc">$</span>id_obs <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fu">NROW</span>(dat_used_by_fit))</span>
+<span id="cb38-314"><a href="#cb38-314" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-315"><a href="#cb38-315" aria-hidden="true" tabindex="-1"></a><span class="co"># Create expanded dataset with K rows for each observation:</span></span>
+<span id="cb38-316"><a href="#cb38-316" aria-hidden="true" tabindex="-1"></a>ess_greece_expanded <span class="ot">&lt;-</span> <span class="fu">replicate</span>(K, dat_used_by_fit, <span class="at">simplify =</span> <span class="cn">FALSE</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb38-317"><a href="#cb38-317" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reduce</span>(rbind)</span>
+<span id="cb38-318"><a href="#cb38-318" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-319"><a href="#cb38-319" aria-hidden="true" tabindex="-1"></a><span class="co"># Each of the replicated rows will correspond to one possible</span></span>
+<span id="cb38-320"><a href="#cb38-320" aria-hidden="true" tabindex="-1"></a><span class="co">#.  value of the true latent class:</span></span>
+<span id="cb38-321"><a href="#cb38-321" aria-hidden="true" tabindex="-1"></a>ess_greece_expanded<span class="sc">$</span>X <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>K, <span class="at">each =</span> <span class="fu">NROW</span>(dat_used_by_fit))</span>
+<span id="cb38-322"><a href="#cb38-322" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-323"><a href="#cb38-323" aria-hidden="true" tabindex="-1"></a><span class="co"># Now we assign the BCH weights based on the </span></span>
+<span id="cb38-324"><a href="#cb38-324" aria-hidden="true" tabindex="-1"></a><span class="co">#.   inverse- misclassification matrix Mi</span></span>
+<span id="cb38-325"><a href="#cb38-325" aria-hidden="true" tabindex="-1"></a>ess_greece_expanded <span class="ot">&lt;-</span> ess_greece_expanded <span class="sc">%&gt;%</span></span>
+<span id="cb38-326"><a href="#cb38-326" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">w_bch =</span> Mi[<span class="fu">cbind</span>(X, W)]) </span>
+<span id="cb38-327"><a href="#cb38-327" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-328"><a href="#cb38-328" aria-hidden="true" tabindex="-1"></a><span class="co"># Show a few rows of our constructed data:</span></span>
+<span id="cb38-329"><a href="#cb38-329" aria-hidden="true" tabindex="-1"></a>ess_greece_expanded <span class="sc">%&gt;%</span> <span class="fu">arrange</span>(id_obs) <span class="sc">%&gt;%</span> <span class="fu">head</span>()</span>
+<span id="cb38-330"><a href="#cb38-330" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb38-331"><a href="#cb38-331" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-332"><a href="#cb38-332" aria-hidden="true" tabindex="-1"></a>The only library I was able to find that is both reliable and also does multinomial regression allowing *negative weights* is <span class="in">`glmnet`</span>.</span>
 <span id="cb38-333"><a href="#cb38-333" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb38-336"><a href="#cb38-336" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb38-337"><a href="#cb38-337" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
@@ -1279,13 +1283,14 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb38-368"><a href="#cb38-368" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span> <span class="fu">theme_bw</span>() <span class="sc">+</span> </span>
 <span id="cb38-369"><a href="#cb38-369" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_brewer</span>(<span class="at">palette =</span> <span class="st">"Set2"</span>)</span>
 <span id="cb38-370"><a href="#cb38-370" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb38-371"><a href="#cb38-371" aria-hidden="true" tabindex="-1"></a>It gives results similar to those obtained with the one-step method.</span>
-<span id="cb38-372"><a href="#cb38-372" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-373"><a href="#cb38-373" aria-hidden="true" tabindex="-1"></a><span class="fu">### SessionInfo</span></span>
-<span id="cb38-374"><a href="#cb38-374" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-377"><a href="#cb38-377" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb38-378"><a href="#cb38-378" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
-<span id="cb38-379"><a href="#cb38-379" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb38-371"><a href="#cb38-371" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-372"><a href="#cb38-372" aria-hidden="true" tabindex="-1"></a>It gives results similar to those obtained with the one-step method.</span>
+<span id="cb38-373"><a href="#cb38-373" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-374"><a href="#cb38-374" aria-hidden="true" tabindex="-1"></a><span class="fu">### SessionInfo</span></span>
+<span id="cb38-375"><a href="#cb38-375" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-378"><a href="#cb38-378" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb38-379"><a href="#cb38-379" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
+<span id="cb38-380"><a href="#cb38-380" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->

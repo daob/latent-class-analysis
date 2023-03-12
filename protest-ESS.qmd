@@ -31,15 +31,15 @@ Read the data from the European Social Survey, round 4 (Greece).
 
 For each of these survey questions, 1="Yes" and 2="No".
 
-- `contplt` - Contacted politician or government official last 12 months
-- `wrkprty` - Worked in political party or action group last 12 months
-- `wrkorg` - Worked in another organisation or association last 12 months
-- `badge` - Worn or displayed campaign badge/sticker last 12 months
-- `sgnptit` - Signed petition last 12 months
-- `pbldmn` - Taken part in lawful public demonstration last 12 months
-- `bctprd` - Boycotted certain products last 12 months 
-- `gndr` - Gender 
--  `agea` - Age of respondent, calculated 
+-   `contplt` - Contacted politician or government official last 12 months
+-   `wrkprty` - Worked in political party or action group last 12 months
+-   `wrkorg` - Worked in another organisation or association last 12 months
+-   `badge` - Worn or displayed campaign badge/sticker last 12 months
+-   `sgnptit` - Signed petition last 12 months
+-   `pbldmn` - Taken part in lawful public demonstration last 12 months
+-   `bctprd` - Boycotted certain products last 12 months
+-   `gndr` - Gender
+-   `agea` - Age of respondent, calculated
 
 ```{r}
 #| message: false
@@ -47,7 +47,8 @@ ess_greece <- read_csv("https://daob.nl/files/lca/ess_greece.csv.gz")
 
 ess_greece |> rmarkdown::paged_table()
 ```
-Sadly, `poLCA` has no way of dealing with missing values other than "listwise deletion" (`na.omit`). For later comparability of models with different sets of variables, we create a single dataset without missings. 
+
+Sadly, `poLCA` has no way of dealing with missing values other than "listwise deletion" (`na.omit`). For later comparability of models with different sets of variables, we create a single dataset without missings.
 
 ```{r}
 ess_greece <- na.omit(ess_greece)
@@ -61,10 +62,10 @@ table(ess_greece) %>%
   filter(Freq != 0) %>% 
   rmarkdown::paged_table()
 ```
-### Try out models with different number of classes 
 
-Create a convenience function that will fit the K-class model to
-the political participation data.
+### Try out models with different number of classes
+
+Create a convenience function that will fit the K-class model to the political participation data.
 
 ```{r}
 fitLCA <- function(k) {
@@ -99,12 +100,10 @@ plot(seq_along(aic_values), aic_values, type = "b", xlab = "Number of classes", 
 plot(seq_along(aic_values), aic_values, type = "b", xlab = "Number of classes", ylab = "BIC", las = 2)
 ```
 
-
-
 ### Select a model
 
-
 We select the four-class model.
+
 ```{r}
 form_activism <- cbind(contplt, wrkprty, wrkorg, 
                        badge, sgnptit, pbldmn, bctprd) ~ 1
@@ -143,6 +142,7 @@ library(poLCA.extras)
 
 bvr(fit)
 ```
+
 ```{r}
 bootstrap_bvr_pvals(form_activism, fit, ess_greece, R = 200)
 ```
@@ -200,9 +200,9 @@ error_post <- mean(apply(fit$posterior, 1, entropy))
 
 Now we fit the four-class model, but include covariates that predict the class membership. Class membership is predicted by gender and a quadratic age effect.
 
-We also use the results from the model without covariates as starting values for the solution. 
+We also use the results from the model without covariates as starting values for the solution.
 
-This is where the analyzed data would have been different if we had not already deleted all cases with at least one missing value above using `na.omit`. In practice this may lead to trouble, especially when there are many variables. 
+This is where the analyzed data would have been different if we had not already deleted all cases with at least one missing value above using `na.omit`. In practice this may lead to trouble, especially when there are many variables.
 
 ```{r}
 form_activism <- cbind(contplt, wrkprty, wrkorg, 
@@ -216,12 +216,13 @@ fit_covariates <-
         verbose = FALSE, nrep = 50)
 ```
 
-The results now include multinomial regression coefficients in a model predicting class membership. 
+The results now include multinomial regression coefficients in a model predicting class membership.
 
 ```{r}
 fit_covariates
 ```
-The solution may have changed now that covariates are included.  
+
+The solution may have changed now that covariates are included.
 
 ```{r}
 #| message: false
@@ -236,10 +237,9 @@ tidy(fit_covariates) %>%
   theme_bw() + scale_color_brewer(palette = "Set2")
 ```
 
-
 #### Effects plot
 
-We can easily plot the results of the multinomial model using the `effects` library. 
+We can easily plot the results of the multinomial model using the `effects` library.
 
 ```{r}
 #| message: false
@@ -251,8 +251,7 @@ effect_age <- predictorEffects(fit_covariates, ~agea*gndr)
 plot(effect_age, lines=list(multiline=TRUE))
 ```
 
-
-#### Three-step method using hand-rolled BCH  weights
+#### Three-step method using hand-rolled BCH weights
 
 ```{r}
 M <- prop.table(classification_table, 2) 
@@ -281,7 +280,8 @@ ess_greece_expanded <- ess_greece_expanded %>%
 # Show a few rows of our constructed data:
 ess_greece_expanded %>% arrange(id_obs) %>% head()
 ```
-The only library I was able to find that is both reliable and also does multinomial regression allowing _negative weights_ is `glmnet`. 
+
+The only library I was able to find that is both reliable and also does multinomial regression allowing *negative weights* is `glmnet`.
 
 ```{r}
 #| message: false
@@ -318,6 +318,7 @@ ef %>%
   geom_line() + theme_bw() + 
   scale_color_brewer(palette = "Set2")
 ```
+
 It gives results similar to those obtained with the one-step method.
 
 ### SessionInfo
@@ -325,4 +326,3 @@ It gives results similar to those obtained with the one-step method.
 ```{r}
 sessionInfo()
 ```
-
