@@ -1,7 +1,10 @@
 ---
 title: "EM: categorical indicators"
 author: "DL Oberski"
-format: html
+format: 
+  html:
+    code-tools: true
+    code-link: true
 ---
 
 ## EM for categorical indicators

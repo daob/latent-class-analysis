@@ -18,6 +18,7 @@ website:
           - em-categorical.qmd
           - loglinear-LCA.qmd
           - local-dependence.qmd
+          - clustering-distance.qmd
       - section: "Applications"
         contents:
           - antireli.qmd

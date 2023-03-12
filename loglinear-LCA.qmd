@@ -4,9 +4,10 @@ editor: visual
 author: "DL Oberski"
 format:
   html:
-    code-fold: true
+    code-fold: false
     code-summary: "Show the code"
     code-tools: true
+    code-link: true
     theme: zephyr
     toc: true
 execute:
@@ -130,7 +131,174 @@ The local dependence model fits better.
 
 ### Multiple latent variables
 
+Example from Oberski (2016), available at <https://doi.org/10.1007/s11634-015-0211-0> (open access).
+
+```{r}
+library(readr)
+library(cvam)
+options(contrasts = rep("contr.sum", 2))
+```
+
+Data are from the LISS panel. People were asked 5 times if they had voted in the last parliamentary election. This pertained to two separate elections. The substantively inspired model is as shown.
+
+```{mermaid}
+flowchart TD
+  X1((Voted 2006)) ---> A[2008]
+  X1 ---> B[2009]
+  X1 ---> C[2010]
+  X2((Voted 2010)) ---> D[2011]
+  X2 ---> E[2012]
+  X1 --> X2
+```
+
+Read in the data. 
+
+```{r}
+#| message: false
+path <- "https://daob.nl/files/lca/vote-LISS.dat.gz"
+vote <- readr::read_table(path, na = ".")
+
+rmarkdown::paged_table(vote)
+```
+
+We transform the data into frequencies (including the missing values). We also rename the variables A-E to write smaller formulas.
+
+```{r}
+df_freq <- table(vote[, -1], useNA = "ifany") |> as.data.frame()
+names(df_freq)[1:5] <- LETTERS[1:5]
+```
+
+We now formulate the model. It includes two different latent variables `X1` and `X2`, which are meant to signify really voting in 2006 and 2010, respectively. 
+
+```{r}
+# Create a new variable that is completely missing (and has 2 cats)
+df_freq$X1 <- latentFactor(NROW(df_freq), 2)
+df_freq$X2 <- latentFactor(NROW(df_freq), 2)
+
+# Create formula
+formula <- ~ X1 * (A + B + C) + X2 * (D + E) + X1:X2
+```
+
+We use `cvam` to fit the model.
+```{r}
+fit_cvam <- cvam(formula, data = df_freq, freq = Freq,
+                 control = list(startValJitter = 0.1))
+```
+
+Some results of interest.
+
+```{r}
+summary(fit_cvam)
+
+what <- paste0("~", LETTERS[1:3], "|X1") |> sapply(as.formula)
+what <- what %>% c(paste0("~", LETTERS[4:5], "|X2") |> sapply(as.formula))
+what <- c(~X1, ~X2, ~X2 | X1, what)
+
+est_indep <- cvamEstimate(what, fit_cvam)
+est_indep
+```
+
+As in the paper, we can also include two local dependencies by updating the formula and refitting.
+
+```{r}
+# Update formula
+formula_ld <- update(formula, ~ . + A:B + A:E)
+
+fit_cvam_ld <- cvam(formula_ld, data = df_freq, freq = Freq,
+                 control = list(startValJitter = 0.1))
+```
+
+The models are nested, so we can use the LRT to compare them.
+
+```{r}
+anova(fit_cvam, fit_cvam_ld)
+```
+
+The actual estimates are not too different.
+
+```{r}
+est_locdep <- cvamEstimate(what, fit_cvam_ld)
+est_locdep
+```
+
+
+### Ordinal indicators
+
+First consider the four-category indicators as nominal.
+
+```{r}
+data("election")
+
+df_freq <- election[, 1:5] %>% table() %>% as.data.frame()
+df_freq$X <- latentFactor(NROW(df_freq), 2)
+
+# Create formula
+formula <- ~ X * (MORALG + CARESG + KNOWG + LEADG + DISHONG)
+
+fit_cvam <- cvam(formula, data = df_freq, freq = Freq,
+                 control = list(startValJitter = 0.1))
+
+summary(fit_cvam)
+
+what <- c(~X, ~MORALG | X, ~CARESG | X, ~KNOWG | X, 
+          ~LEADG | X, ~DISHONG | X)
+cvamEstimate(what, fit_cvam)
+```
+
+Now consider them "ordinal" using an adjacent-category logit model, a.k.a. "nominal-by-linear" model in Goodman's loglinear terminology.
+
+```{r}
+scale_01 <- function(x) {
+  (x - min(x)) / (max(x) - min(x))
+}
+
+factor_to_numeric_01 <- function(x) {
+  x_num <- seq_along(levels(x))[x]
+  scale_01(x_num)
+}
+
+X <- fit_cvam$modelMatrix
+X <- X %>% as_tibble() %>% 
+  # Remove nominal interaction terms
+  select_if(!grepl("X.:.+", names(.))) 
+# Now include linear interaction terms by hand
+X$`X1:MORALG` <- X$X1 * factor_to_numeric_01(fit_cvam$mfTrue$MORALG)
+X$`X1:CARESG` <- X$X1 * factor_to_numeric_01(fit_cvam$mfTrue$CARESG)
+X$`X1:KNOWG` <- X$X1 * factor_to_numeric_01(fit_cvam$mfTrue$KNOWG)
+X$`X1:LEADG` <- X$X1 * factor_to_numeric_01(fit_cvam$mfTrue$LEADG)
+X$`X1:DISHONG` <- X$X1 * factor_to_numeric_01(fit_cvam$mfTrue$DISHONG)
+
+rmarkdown::paged_table(X)
+
+X <- as.matrix(X)
+```
+
+We can now fit the model with ordinal indicators by passing our custom design matrix `X` to `cvam`.
+
+```{r}
+fit_cvam_ord <- cvam(formula, data = df_freq, 
+                     freq = Freq, modelMatrix = X, 
+                     control = list(startValJitter = 0.1))
+
+summary(fit_cvam_ord)
+
+cvamEstimate(what, fit_cvam_ord)
+```
+
+The ordinal model is more parsimonious, using `r fit_cvam_ord$degreesOfFreedom - fit_cvam$degreesOfFreedom` fewer parameters. 
+
+```{r}
+anova(fit_cvam_ord, fit_cvam)
+```
+```{r}
+anova(fit_cvam_ord, fit_cvam, method = "BIC")
+```
+
+
 ### Linear effects among observed and latent variables (DFactor models)
+
+
+
 
 ### Missing-not-at-random (MNAR) / Unseen data-dependent models
 

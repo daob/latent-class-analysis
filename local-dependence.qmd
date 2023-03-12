@@ -3,9 +3,10 @@ title: "Local dependence LCA in R"
 author: "DL Oberski"
 format:
   html:
-    code-fold: true
+    code-fold: false
     code-summary: "Show the code"
     code-tools: true
+    code-link: true
     theme: zephyr
     toc: true
 editor: visual

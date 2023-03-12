@@ -4,7 +4,9 @@ author: "DL Oberski"
 format: 
   html:
     theme: zephyr
+    code-tools: true
     toc: true
+    code-link: true
 editor: visual
 execute:
   cache: false
@@ -12,7 +14,9 @@ execute:
 
 # EM for a simple example
 
-Below you will find code to simulate data from a mixture of univariate Gaussians, and estimate that mixture (LPA model) using the EM algorithm. The code is intended to be easy to understand and as simple as possible, while still doing the job. You can copy code into your `R` environment by clicking the copy icon in the top right of each code block.
+Below you will find code to simulate data from a mixture of univariate Gaussians, and estimate that mixture (LPA model) using the EM algorithm. The code is intended to be easy to understand and as simple as possible, while still doing the job. 
+
+You can copy code into your `R` environment by clicking the copy icon in the top right of each code block. You can also obtain the source code for this entire document by clicking "Code" at the top-right of this page.
 
 ## Exercises
 
@@ -160,7 +164,7 @@ table(guess_person_sex, true_sex) |>
   knitr::kable(digits = 4)
 ```
 
-This table is sometimes called the classification table. It is a measure of separation between the classes. In practice, it cannot be calculated because we do not have the `true_sex`. Instead, an estimate can be calculated using the posterior probabilities. If these are well-calibrated (correspond to the true uncertainty about class membership), then calculating the within-guess mean of the posterior should give the desired classification table.
+This table is sometimes called the classification table. It is a measure of separation between the classes, and plays an important role when you want to use the classifications for some subsequent analysis. In practice, it cannot be calculated because we do not have the `true_sex`. Instead, an estimate can be calculated using the posterior probabilities. If these are well-calibrated (correspond to the true uncertainty about class membership), then calculating the within-guess mean of the posterior should give the desired classification table.
 
 ```{r}
 count_guesses <- tabulate(guess_person_sex)

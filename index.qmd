@@ -3,3 +3,5 @@ title: "Latent class analysis"
 ---
 
 This is a website containing some documents about latent class analysis.
+
+It is intended to accompany the course "Latent Class Analysis".

@@ -5,6 +5,8 @@ format:
   html:
     theme: zephyr
     toc: true
+    code-tools: true
+    code-link: true
 editor: visual
 execute:
   cache: true
@@ -44,6 +46,11 @@ For each of these survey questions, 1="Yes" and 2="No".
 ess_greece <- read_csv("https://daob.nl/files/lca/ess_greece.csv.gz") 
 
 ess_greece |> rmarkdown::paged_table()
+```
+Sadly, `poLCA` has no way of dealing with missing values other than "listwise deletion" (`na.omit`). For later comparability of models with different sets of variables, we create a single dataset without missings. 
+
+```{r}
+ess_greece <- na.omit(ess_greece)
 ```
 
 Show the data as pattern frequencies.
@@ -98,7 +105,6 @@ plot(seq_along(aic_values), aic_values, type = "b", xlab = "Number of classes", 
 
 
 We select the four-class model.
-
 ```{r}
 form_activism <- cbind(contplt, wrkprty, wrkorg, 
                        badge, sgnptit, pbldmn, bctprd) ~ 1
@@ -120,7 +126,7 @@ In this case the default plot is still somewhat readable, but in practice it is 
 ```{r}
 #| message: false
 #| warning: false
-tidy(fit) %>% 
+tidy(fit) %>% # from `broom` package
   filter(outcome == 2) %>% 
   mutate(class = as.factor(class)) %>%
   ggplot(aes(variable, estimate, group = class, color = class)) +
@@ -185,14 +191,18 @@ Entropy $R^2$:
 ```{r}
 entropy <- function(p) sum(-p * log(p))
 
-error_prior <- entropy(MK[[4]]$P) # Class proportions
-error_post <- mean(apply(MK[[4]]$posterior, 1, entropy))
+error_prior <- entropy(fit$P) # Class proportions
+error_post <- mean(apply(fit$posterior, 1, entropy))
 (R2_entropy  <- (error_prior - error_post) / error_prior) # 0.741
 ```
 
 ### Model with covariates
 
 Now we fit the four-class model, but include covariates that predict the class membership. Class membership is predicted by gender and a quadratic age effect.
+
+We also use the results from the model without covariates as starting values for the solution. 
+
+This is where the analyzed data would have been different if we had not already deleted all cases with at least one missing value above using `na.omit`. In practice this may lead to trouble, especially when there are many variables. 
 
 ```{r}
 form_activism <- cbind(contplt, wrkprty, wrkorg, 
@@ -202,7 +212,8 @@ form_activism <- cbind(contplt, wrkprty, wrkorg,
 fit_covariates <- 
   poLCA(form_activism, 
         data = ess_greece, nclass = 4, 
-        nrep = 50, verbose = FALSE)
+        probs.start = fit$probs, 
+        verbose = FALSE, nrep = 50)
 ```
 
 The results now include multinomial regression coefficients in a model predicting class membership. 
@@ -238,5 +249,80 @@ library(effects)
 ```{r}
 effect_age <- predictorEffects(fit_covariates, ~agea*gndr)
 plot(effect_age, lines=list(multiline=TRUE))
+```
+
+
+#### Three-step method using hand-rolled BCH  weights
+
+```{r}
+M <- prop.table(classification_table, 2) 
+Mi <- solve(M) # Weight matrix
+K <- ncol(M) # Number of classes 
+
+# The data used by poLCA (may differ from raw due to missings):
+dat_used_by_fit <- ess_greece
+# Assigned class membership (by default uses modal assignment):
+dat_used_by_fit$W <- fit$predclass 
+dat_used_by_fit$id_obs <- seq(NROW(dat_used_by_fit))
+
+# Create expanded dataset with K rows for each observation:
+ess_greece_expanded <- replicate(K, dat_used_by_fit, simplify = FALSE) |> 
+  reduce(rbind)
+
+# Each of the replicated rows will correspond to one possible
+#.  value of the true latent class:
+ess_greece_expanded$X <- rep(1:K, each = NROW(dat_used_by_fit))
+
+# Now we assign the BCH weights based on the 
+#.   inverse- misclassification matrix Mi
+ess_greece_expanded <- ess_greece_expanded %>%
+  mutate(w_bch = Mi[cbind(X, W)]) 
+
+# Show a few rows of our constructed data:
+ess_greece_expanded %>% arrange(id_obs) %>% head()
+```
+The only library I was able to find that is both reliable and also does multinomial regression allowing _negative weights_ is `glmnet`. 
+
+```{r}
+#| message: false
+library(glmnet)
+
+# We use glmnet with our BCH weights, w_bch, pretending X
+#.  is observed. Set alpha and lambda =
+fit_glmnet <- with(ess_greece_expanded %>% 
+                     mutate(age_sq = agea^2),
+     glmnet(cbind(gndr, agea, age_sq), X, weights =w_bch, 
+            family = "multinomial", alpha = 0, lambda = 0))
+
+# The estimted coefficients
+fit_glmnet |> 
+  coef() |> 
+  reduce(cbind) |>
+  round(4)
+
+# effects library does not work with glmnet so we have to roll
+#.  our own (again)
+ef <- ess_greece %>% 
+  summarize(agea = sort(unique(agea)), 
+            age_sq = agea^2,
+            gndr = 1.5) %>% 
+  bind_cols(predict(fit_glmnet, newx=as.matrix(.), 
+                   type = "response")[,,1])
+
+names(ef)[4:7] <- paste0("X", 1:4)
+
+# Show the effects plot
+ef %>% 
+  pivot_longer(X1:X4, names_to = "Class", values_to = "Prob") %>%
+  ggplot(aes(agea, Prob, colour = Class, group = Class)) +
+  geom_line() + theme_bw() + 
+  scale_color_brewer(palette = "Set2")
+```
+It gives results similar to those obtained with the one-step method.
+
+### SessionInfo
+
+```{r}
+sessionInfo()
 ```
 

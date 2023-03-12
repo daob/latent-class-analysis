@@ -5,6 +5,8 @@ format:
   html:
     theme: zephyr
     toc: true
+    code-tools: true
+    code-link: true
 editor: visual
 execute:
   cache: false
