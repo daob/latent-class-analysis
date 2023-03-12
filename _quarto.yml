@@ -19,11 +19,15 @@ website:
           - loglinear-LCA.qmd
           - local-dependence.qmd
           - clustering-distance.qmd
+      - section: "Assignments"
+        contents:
+          - antireli-assignment.qmd
+          - ESS-assignment.qmd
+          - project-reproduce-LCA.qmd
       - section: "Applications"
         contents:
           - antireli.qmd
           - protest-ESS.qmd
-          - project-reproduce-LCA.qmd
 
 format:
   html:

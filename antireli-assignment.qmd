@@ -1,0 +1,51 @@
+---
+title: "Anti-religious speech"
+author: "DL Oberski"
+format: 
+  html:
+    theme: zephyr
+    toc: true
+    code-tools: true
+    code-link: true
+editor: visual
+execute:
+  cache: false
+---
+
+### Exercises
+
+(@) Using `poLCA`, fit a two-class LCA to these data.
+(@) Create a profile plot.
+(@) How would you label the classes?
+(@) What can you say about the estimated class sizes? What does this mean for the prevalence of the attitudes you labeled under (2)?
+(@) Model fit
+  a. How many parameters are there? 
+  b. How many _unique_ data patterns are there (fixing the sample size $n=1713$)?
+  c. Can you explain the number of degrees of freedom?
+  d. Can you explain the value of  the `G^2` ($G^2$) and `X^2` ($\chi^2$) statistics?
+
+
+
+### Data
+
+```{r}
+#| message: false
+library(tidyverse)
+library(broom)
+library(poLCA)
+```
+
+Read the data from the General Social Survey 1987. It's not old, it's a classic!
+
+```{r}
+antireli <- read.csv("https://daob.nl/files/lca/antireli_data.csv")
+
+head(antireli)
+```
+
+Show the data as pattern frequencies.
+
+```{r}
+table(antireli) |> knitr::kable()
+```
+

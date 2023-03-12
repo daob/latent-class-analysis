@@ -1,0 +1,85 @@
+---
+title: "Attitudes towards climate change in Europe"
+author: "DL Oberski"
+format: 
+  html:
+    theme: zephyr
+    toc: true
+    code-tools: true
+    code-link: true
+editor: visual
+execute:
+  cache: true
+---
+
+## Attitudes towards climate change in Europe
+
+### Exercises
+
+(@) Read in the ESS round 10 climate change attitudes data (see below under "Data").
+(@) In order not to spend most of your precious time waiting, filter the data to only include one country of your choice. 
+(@) Perform any exploratory data analyses you find necessary. 
+(@) Using `poLCA`, fit LCA models in which the seven participation items are used as indicators (so, exclude `agea` and `gndr` from the analysis for now). Try models with a different number of classes. _Advice_: try 1--6. 
+(@) Use appropriate global fit measures to select the number of classes. 
+(@) Look at local fit measures to assess the fit of your selected model. 
+(@) Create a profile plot for your selected model. (_Hint_: You can use the adjusted plotting code below.)
+(@) Interpret your selected model by looking at the profiles. How would you label the classes?
+(@) Create a classification table.
+(@) Calculate the classification error and entropy $R^2$. 
+(@) Refit your selected model, now while predicting class membership from `agea`, the square of `agea`, `gndr`, and `eisced`. 
+(@) Use the `effects` library to plot the probability of each class as a function of `agea`, `gndr`, and `eisced`, according to your model. What do you conclude?
+(@) _BONUS_: Investigate the distribution of classes over countries by redoing the analyses using all countries in the ess dataset
+(@) _BONUS_: Deal more appropriately with missing data, for example by using `mice`. You will need the original data from ESS.
+
+### Useful libraries
+
+```{r}
+#| message: false
+set.seed(202303)
+
+library(tidyverse)
+library(broom) 
+library(haven)
+library(poLCA)
+```
+
+### Data
+
+Read the data from the European Social Survey, round 10. 
+
+An easy to read codebook copied from ESS is here: <https://daob.nl/files/lca/ESS10-codebook.html>. The full documentation is here: <https://ess-search.nsd.no/en/study/172ac431-2a06-41df-9dab-c1fd8f3877e7>.
+ - `ccnthum` - Climate change caused by natural processes, human activity, or both
+ - `ccrdprs` - To what extent feel personal responsibility to reduce climate change
+ - `wrclmch` - How worried about climate change
+ - `testic37` - Imagine large numbers of people limit energy use, how likely reduce climate change
+ - `testic38` - How likely, large numbers of people limit energy use
+ - `testic39` - How likely, governments in enough countries take action to reduce climate change
+- `gndr` - Gender 
+-  `agea` - Age of respondent, calculated 
+- `eisced` -  Highest level of education, ES - [ISCED](https://ec.europa.eu/eurostat/statistics-explained/index.php?title=International_Standard_Classification_of_Education_(ISCED))
+
+Note: The data have been preprocessed by ruthlessly subjecting them to `na.omit`. 
+
+```{r}
+#| message: false
+ess10_climate <- read_csv("https://daob.nl/files/lca/ess10_climate.csv.gz") 
+
+ess10_climate |> rmarkdown::paged_table()
+```
+
+
+### Visualization help
+
+Because the assignment differs from the example in that this is polytomous data, and the number of categories differ, here is some (hopefully) helpful code to create profile plots.
+
+```{{r}}
+tidy(fit) %>% # from `broom` package
+    # filter(grepl("^test", variable)) %>%
+    mutate(class = as.factor(class), outcome = factor(outcome)) %>%
+    ggplot(aes(outcome, estimate, group = class, color = class)) +
+    geom_point() + geom_line() + facet_wrap(~variable, scales = "free_x")+
+    geom_errorbar(aes(ymin = estimate - 2*std.error, 
+                      ymax = estimate + 2*std.error), width = 0.2) +
+    theme_bw() + scale_color_brewer(palette = "Set2")
+```
+
