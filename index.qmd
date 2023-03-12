@@ -5,3 +5,13 @@ title: "Latent class analysis"
 This is a website containing some documents about latent class analysis.
 
 It is intended to accompany the course "Latent Class Analysis".
+
+**Slides for part 1**:
+
+-   [00-Introduction](https://daob.nl/files/lca/slides/00-introduction.pdf "Slides for course")
+
+-   [01-LPA-and-EM-basic](https://daob.nl/files/lca/slides/01-LPA-and-EM-basic.pdf "Slides for course")
+
+-   [02-LCA-basic](https://daob.nl/files/lca/slides/02-LCA-basic.pdf "Slides for course")
+
+Further slides will be posted later.
