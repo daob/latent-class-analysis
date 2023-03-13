@@ -16,18 +16,18 @@ execute:
 
 ### Exercises
 
-(@) Read in the ESS round 10 climate change attitudes data (see below under "Data").
+(@) Read in the ESS round 10  (2020) climate change attitudes data (see below under "Data").
 (@) In order not to spend most of your precious time waiting, filter the data to only include one country of your choice. 
 (@) Perform any exploratory data analyses you find necessary. 
-(@) Using `poLCA`, fit LCA models in which the seven participation items are used as indicators (so, exclude `agea` and `gndr` from the analysis for now). Try models with a different number of classes. _Advice_: try 1--6. 
-(@) Use appropriate global fit measures to select the number of classes. 
+(@) Using `poLCA`, fit LCA models in which the seven participation items are used as indicators (so, exclude `agea`, `gndr`, and `eisced` from the analysis for now). Try models with a different number of classes. _Advice_: try 1--6. 
+(@) Use appropriate global fit measures, or any other criteria you prefer, to select the number of classes. Explain your choice.
 (@) Look at local fit measures to assess the fit of your selected model. 
 (@) Create a profile plot for your selected model. (_Hint_: You can use the adjusted plotting code below.)
 (@) Interpret your selected model by looking at the profiles. How would you label the classes?
 (@) Create a classification table.
 (@) Calculate the classification error and entropy $R^2$. 
 (@) Refit your selected model, now while predicting class membership from `agea`, the square of `agea`, `gndr`, and `eisced`. 
-(@) Use the `effects` library to plot the probability of each class as a function of `agea`, `gndr`, and `eisced`, according to your model. What do you conclude?
+(@) Use the `effects` library to plot the probability of each class as a function of `agea`, `gndr`, and `eisced`, according to your model. What do you conclude? (_Hint_: if `effects` does not work, see the code below.)
 (@) _BONUS_: Investigate the distribution of classes over countries by redoing the analyses using all countries in the ess dataset
 (@) _BONUS_: Deal more appropriately with missing data, for example by using `mice`. You will need the original data from ESS.
 
@@ -45,20 +45,21 @@ library(poLCA)
 
 ### Data
 
-Read the data from the European Social Survey, round 10. 
+Read the data from the European Social Survey, round 10 (2020). 
 
 An easy to read codebook copied from ESS is here: <https://daob.nl/files/lca/ESS10-codebook.html>. The full documentation is here: <https://ess-search.nsd.no/en/study/172ac431-2a06-41df-9dab-c1fd8f3877e7>.
- - `ccnthum` - Climate change caused by natural processes, human activity, or both
- - `ccrdprs` - To what extent feel personal responsibility to reduce climate change
- - `wrclmch` - How worried about climate change
- - `testic37` - Imagine large numbers of people limit energy use, how likely reduce climate change
- - `testic38` - How likely, large numbers of people limit energy use
- - `testic39` - How likely, governments in enough countries take action to reduce climate change
-- `gndr` - Gender 
--  `agea` - Age of respondent, calculated 
-- `eisced` -  Highest level of education, ES - [ISCED](https://ec.europa.eu/eurostat/statistics-explained/index.php?title=International_Standard_Classification_of_Education_(ISCED))
 
-Note: The data have been preprocessed by ruthlessly subjecting them to `na.omit`. 
+   - `ccnthum` - Climate change caused by natural processes, human activity, or both
+   - `ccrdprs` - To what extent feel personal responsibility to reduce climate change
+   - `wrclmch` - How worried about climate change
+   - `testic37` - Imagine large numbers of people limit energy use, how likely reduce climate change
+   - `testic38` - How likely, large numbers of people limit energy use
+   - `testic39` - How likely, governments in enough countries take action to reduce climate change
+  - `gndr` - Gender 
+  -  `agea` - Age of respondent, calculated 
+  - `eisced` -  Highest level of education, ES - [ISCED](https://ec.europa.eu/eurostat/statistics-explained/index.php?title=International_Standard_Classification_of_Education_(ISCED))
+
+_Note_: The data have been preprocessed by ruthlessly subjecting them to `na.omit`. I have also recoded `eisced` to be missing except for values 1-7. Otherwise, the data are as-is from the ESS website.
 
 ```{r}
 #| message: false
@@ -74,12 +75,66 @@ Because the assignment differs from the example in that this is polytomous data,
 
 ```{{r}}
 tidy(fit) %>% # from `broom` package
-    # filter(grepl("^test", variable)) %>%
-    mutate(class = as.factor(class), outcome = factor(outcome)) %>%
+    mutate(class = as.factor(class), outcome = as.factor(outcome)) %>%
     ggplot(aes(outcome, estimate, group = class, color = class)) +
     geom_point() + geom_line() + facet_wrap(~variable, scales = "free_x")+
     geom_errorbar(aes(ymin = estimate - 2*std.error, 
                       ymax = estimate + 2*std.error), width = 0.2) +
     theme_bw() + scale_color_brewer(palette = "Set2")
 ```
+
+### Effects help
+
+Unfortunately, `effects` does not appear to function properly for this type of model. The code below could be helpful to create effects plots by hand. It assumes that the right-hand side of formula used was `agea + I(agea^2) + gndr + eisced`.
+
+```{r}
+#| message: false
+#| echo: false
+#| output: false
+
+ess10_climate_it <- filter(ess10_climate, cntry == "IT")
+ess10_climate_it$ccrdprs <- ess10_climate_it$ccrdprs + 1
+
+fit <- poLCA(cbind(ccnthum, ccrdprs , wrclmch , 
+                     testic37, testic38, testic39) ~ 
+                 agea + I(agea^2) + gndr + eisced, 
+                data = ess10_climate_it, nclass = 3, 
+                maxiter = 2e3, nrep=10, verbose = FALSE)
+```
+
+The code below creates a dataframe with the "effects" of the various covariates based on the model estimates from `fit`. This is also how `effects` works and demonstrated within the `poLCA` help file. 
+
+```{r}
+age_levels <- with(ess10_climate_it, {
+  seq(min(agea), max(agea), length = 20)
+})
+gndr_levels <- 1:2
+eisced_levels <- 1:7
+
+pidmat <- expand.grid(age_levels, gndr_levels, eisced_levels)
+pidmat <- cbind(1, pidmat[,1], pidmat[,1]^2, pidmat[,2], pidmat[,3])
+colnames(pidmat) <- rownames(coef(fit))
+exb <- exp(pidmat %*% fit$coeff)
+
+class_probs <- cbind(1, exb) / (1 + rowSums(exb))
+colnames(class_probs) <- paste0("X", 1:ncol(class_probs))
+
+df_effects <- cbind(pidmat[, -c(1,3)], class_probs) %>% 
+  as_tibble %>%
+  pivot_longer(-(1:ncol(class_probs)), names_to = "Class") 
+
+df_effects
+```
+
+Example plot for `agea`.
+```{{r}}
+df_effects %>%
+  group_by(agea, Class) %>% 
+  summarize(pr = mean(value)) %>% 
+  ggplot(aes(agea, pr, color = Class)) + 
+  geom_line() + 
+  scale_color_brewer(palette = "Set1") + 
+  theme_bw()
+```
+
 
