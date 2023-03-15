@@ -21,3 +21,7 @@ It is intended to accompany the course "Latent Class Analysis".
 -   [06-LCA-extensions](https://daob.nl/files/lca/slides/06-LCA-extensions.pdf)
 
 Further slides will be posted later.
+
+**Amusing links:**
+
+-   A newspaper article from *15 March 2023* in the Dutch national news (!) about latent class analysis: ["You don't get anywhere by stretching the term class so far"](https://daob.nl/files/lca/lca-NRC.pdf).
