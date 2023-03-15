@@ -1,0 +1,55 @@
+---
+title: "Latent profile analysis"
+author: "DL Oberski"
+format: 
+  html:
+    theme: zephyr
+    toc: true
+    code-tools: true
+    code-link: true
+editor: visual
+execute:
+  cache: true
+---
+
+## Latent profile analysis (a.k.a. Gaussian mixture modeling) 
+
+
+### Exercise
+
+An interesting example of a latent profile analysis using `tidyLPA` is provided, with data and `R` code, by Wannheden et al. (2021), at <https://snd.gu.se/en/catalogue/study/2022-101#dataset>. 
+
+(The paper (Wannheden et al. 2022) is available open access at:  <https://www.frontiersin.org/articles/10.3389/fpubh.2022.960383/full>.)
+
+ (@) Go to <https://snd.gu.se/en/catalogue/study/2022-101#dataset> and download (at least) the files: 
+    + `factorscores_docca.csv`;
+    +  `R-script_Step-1_Latent-profile-analysis.R`.
+    
+      You should save the two files in the same directory. 
+   
+ (@) Now open `R-script_Step-1_Latent-profile-analysis.R` and step through the code until line 86 (plotting of the fit information). Which model is preferred by the various fit measures? Which model was ultimately chosen by the authors? Why?
+ 
+ (@) Use `plot_profiles(t1m2p4)` to plot the profiles of the first model. Compare this with Figure 1 in the paper. What is the main difference? Which do you prefer?
+ 
+ (@) Examine Table 3 in the paper. See if you can follow the authors' rationale in labeling the classes.
+ 
+ (@) Now perform the LPA by using `Mclust` (from the `mclust` library) directly on `t1_scaled`. Try 1-10 classes and assign the result to a varible `fit_mclust`. Which model is selected?
+ 
+ (@) Plot the `fit_mclust` object:
+  
+    + Confirm that BIC selects the model from the previous part
+    + Look at the classification (pairs) plot. What drives the clustering?
+  
+ (@) Use `clustCombi(fit_mclust)` and call `plot` on the resulting object. 
+ 
+    a. Examine the entropy "scree plot". Note the presence of any "elbow".
+    b. Now choose "Classification" and examine the sequence of merged clusters. 
+    
+      Which step will likely give the most substantively interpretable solution?
+    
+    c. Use `ClustCombiOptim` to choose a merged clusters-solution. Which number is chosen?
+  
+  (@) _BONUS_ Use `mclustBootstrapLRT` with model = "VEE" to select the number of classes. Which number is selected?
+  (@) _BONUS_ Create a pairs plot in which the points are colored by class assignment of the Wannheden et al classes. What do you see?
+    
+

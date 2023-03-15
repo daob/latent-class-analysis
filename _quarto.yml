@@ -23,6 +23,7 @@ website:
         contents:
           - antireli-assignment.qmd
           - ESS-assignment.qmd
+          - latent-profile.qmd
           - project-reproduce-LCA.qmd
       - section: "Applications"
         contents:

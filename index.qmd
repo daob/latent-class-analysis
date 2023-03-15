@@ -20,6 +20,10 @@ It is intended to accompany the course "Latent Class Analysis".
 
 -   [06-LCA-extensions](https://daob.nl/files/lca/slides/06-LCA-extensions.pdf)
 
+-   [07-Distance-based-clustering-and-K-means](https://daob.nl/files/lca/slides/07-Distance-based-clustering-and-K-means.pdf)
+
+-   [08-Gaussian-mixture-modeling-LPA](https://daob.nl/files/lca/slides/08-Gaussian-mixture-modeling-LPA.pdf)
+
 Further slides will be posted later.
 
 **Amusing links:**

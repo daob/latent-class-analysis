@@ -209,11 +209,14 @@ form_activism <- cbind(contplt, wrkprty, wrkorg,
                        badge, sgnptit, pbldmn, bctprd) ~ 
   gndr + agea + I(agea^2)
 
-fit_covariates <- 
+ess_greece_poly <- ess_greece %>% 
+  mutate(agea = scale(agea))
+
+fit_covariates <-  
   poLCA(form_activism, 
-        data = ess_greece, nclass = 4, 
+        data = ess_greece_poly, nclass = 4, 
         probs.start = fit$probs, 
-        verbose = FALSE, nrep = 50)
+        verbose = FALSE, nrep = 50, maxiter = 3e3)
 ```
 
 The results now include multinomial regression coefficients in a model predicting class membership.
@@ -275,7 +278,7 @@ ess_greece_expanded$X <- rep(1:K, each = NROW(dat_used_by_fit))
 # Now we assign the BCH weights based on the 
 #.   inverse- misclassification matrix Mi
 ess_greece_expanded <- ess_greece_expanded %>%
-  mutate(w_bch = Mi[cbind(X, W)]) 
+  mutate(w_bch = Mi[cbind(W, X)]) 
 
 # Show a few rows of our constructed data:
 ess_greece_expanded %>% arrange(id_obs) %>% head()
@@ -289,10 +292,10 @@ library(glmnet)
 
 # We use glmnet with our BCH weights, w_bch, pretending X
 #.  is observed. Set alpha and lambda =
-fit_glmnet <- with(ess_greece_expanded %>% 
-                     mutate(age_sq = agea^2),
-     glmnet(cbind(gndr, agea, age_sq), X, weights =w_bch, 
-            family = "multinomial", alpha = 0, lambda = 0))
+fit_glmnet <- with(
+  ess_greece_expanded %>% mutate(age_sq = agea^2),
+  glmnet(cbind(gndr, agea, age_sq), X, weights = w_bch, 
+         family = "multinomial", alpha = 0, lambda = 0))
 
 # The estimted coefficients
 fit_glmnet |> 
