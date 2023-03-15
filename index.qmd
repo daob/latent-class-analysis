@@ -6,7 +6,7 @@ This is a website containing some documents about latent class analysis.
 
 It is intended to accompany the course "Latent Class Analysis".
 
-**Slides for part 1**:
+**Slides**:
 
 -   [00-Introduction](https://daob.nl/files/lca/slides/00-introduction.pdf "Slides for course")
 
