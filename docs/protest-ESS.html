@@ -635,7 +635,7 @@ ALERT: estimation algorithm automatically restarted with new initial values
 </div>
 </div>
 </section><section id="three-step-method-using-hand-rolled-bch-weights" class="level4"><h4 class="anchored" data-anchor-id="three-step-method-using-hand-rolled-bch-weights">Three-step method using hand-rolled BCH weights</h4>
-<div class="cell" data-hash="protest-ESS_cache/html/unnamed-chunk-24_4c25215f3ada0e6ebac5d04f29af280e">
+<div class="cell" data-hash="protest-ESS_cache/html/unnamed-chunk-24_2e2a1ae2208b022d396ffab0b8792de7">
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">M</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/proportions.html">prop.table</a></span><span class="op">(</span><span class="va">classification_table</span>, <span class="fl">2</span><span class="op">)</span> </span>
 <span><span class="va">Mi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/solve.html">solve</a></span><span class="op">(</span><span class="va">M</span><span class="op">)</span> <span class="co"># Weight matrix</span></span>
 <span><span class="va">K</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span><span class="op">(</span><span class="va">M</span><span class="op">)</span> <span class="co"># Number of classes </span></span>
@@ -657,7 +657,7 @@ ALERT: estimation algorithm automatically restarted with new initial values
 <span><span class="co"># Now we assign the BCH weights based on the </span></span>
 <span><span class="co">#.   inverse- misclassification matrix Mi</span></span>
 <span><span class="va">ess_greece_expanded</span> <span class="op">&lt;-</span> <span class="va">ess_greece_expanded</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>w_bch <span class="op">=</span> <span class="va">Mi</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span><span class="va">W</span>, <span class="va">X</span><span class="op">)</span><span class="op">]</span><span class="op">)</span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>w_bch <span class="op">=</span> <span class="va">Mi</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">W</span><span class="op">)</span><span class="op">]</span><span class="op">)</span> </span>
 <span></span>
 <span><span class="co"># Show a few rows of our constructed data:</span></span>
 <span><span class="va">ess_greece_expanded</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span><span class="op">(</span><span class="va">id_obs</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -693,10 +693,10 @@ ALERT: estimation algorithm automatically restarted with new initial values
 <div class="cell-output cell-output-stdout">
 <pre><code>4 x 4 sparse Matrix of class "dgCMatrix"
             s0      s0      s0      s0
-       -0.8129  2.2496 -1.1247 -0.3119
-gndr    0.0634  0.2132 -0.0632 -0.2134
-agea   -0.0081 -0.0256  0.0566 -0.0228
-age_sq  0.0001  0.0003 -0.0008  0.0004</code></pre>
+       -2.3236  2.7541 -0.6276  0.1970
+gndr   -0.2351  0.3127  0.0359 -0.1135
+agea    0.0597 -0.0483  0.0343 -0.0457
+age_sq -0.0009  0.0006 -0.0004  0.0007</code></pre>
 </div>
 <div class="sourceCode" id="cb35"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># effects library does not work with glmnet so we have to roll</span></span>
 <span><span class="co">#.  our own (again)</span></span>
@@ -1241,7 +1241,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb38-323"><a href="#cb38-323" aria-hidden="true" tabindex="-1"></a><span class="co"># Now we assign the BCH weights based on the </span></span>
 <span id="cb38-324"><a href="#cb38-324" aria-hidden="true" tabindex="-1"></a><span class="co">#.   inverse- misclassification matrix Mi</span></span>
 <span id="cb38-325"><a href="#cb38-325" aria-hidden="true" tabindex="-1"></a>ess_greece_expanded <span class="ot">&lt;-</span> ess_greece_expanded <span class="sc">%&gt;%</span></span>
-<span id="cb38-326"><a href="#cb38-326" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">w_bch =</span> Mi[<span class="fu">cbind</span>(W, X)]) </span>
+<span id="cb38-326"><a href="#cb38-326" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">w_bch =</span> Mi[<span class="fu">cbind</span>(X, W)]) </span>
 <span id="cb38-327"><a href="#cb38-327" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb38-328"><a href="#cb38-328" aria-hidden="true" tabindex="-1"></a><span class="co"># Show a few rows of our constructed data:</span></span>
 <span id="cb38-329"><a href="#cb38-329" aria-hidden="true" tabindex="-1"></a>ess_greece_expanded <span class="sc">%&gt;%</span> <span class="fu">arrange</span>(id_obs) <span class="sc">%&gt;%</span> <span class="fu">head</span>()</span>

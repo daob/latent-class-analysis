@@ -14,4 +14,10 @@ It is intended to accompany the course "Latent Class Analysis".
 
 -   [02-LCA-basic](https://daob.nl/files/lca/slides/02-LCA-basic.pdf "Slides for course")
 
+-   [03-Bayes-rule.pdf](https://daob.nl/files/lca/03-Bayes-rule.pdf)
+
+-   [04-EM-categorical.pdf](https://daob.nl/files/lca/04-EM-categorical.pdf)
+
+-   [06-LCA-extensions.pdf](https://daob.nl/files/lca/06-LCA-extensions.pdf)
+
 Further slides will be posted later.

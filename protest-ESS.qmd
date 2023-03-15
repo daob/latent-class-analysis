@@ -275,7 +275,7 @@ ess_greece_expanded$X <- rep(1:K, each = NROW(dat_used_by_fit))
 # Now we assign the BCH weights based on the 
 #.   inverse- misclassification matrix Mi
 ess_greece_expanded <- ess_greece_expanded %>%
-  mutate(w_bch = Mi[cbind(W, X)]) 
+  mutate(w_bch = Mi[cbind(X, W)]) 
 
 # Show a few rows of our constructed data:
 ess_greece_expanded %>% arrange(id_obs) %>% head()
