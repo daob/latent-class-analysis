@@ -26,6 +26,10 @@ It is intended to accompany the course "Latent Class Analysis".
 
 Further slides will be posted later.
 
+**Interesting links:**
+
+-   [Jeroen Vermunt's latent class video playlist](https://www.youtube.com/playlist?list=PLRLsOktHXB5cosY5fnSmHHxPeGps84ejR)
+
 **Amusing links:**
 
 -   A newspaper article from *15 March 2023* in the Dutch national news (!) about latent class analysis: ["You don't get anywhere by stretching the term class so far"](https://daob.nl/files/lca/lca-NRC.pdf).
